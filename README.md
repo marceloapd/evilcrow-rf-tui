@@ -14,15 +14,17 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - [x] Compilation working (RAM: 11.6%, Flash: 22.0%)
 - [x] Serial protocol tests passing
 
-### ✅ Implemented (Phase 2 - RX)
+### ✅ Implemented (Phase 2 - RX & TX)
 - [x] RX Operations (signal capture with interrupt handler)
 - [x] Signal analysis (timing patterns, binary representation)
 - [x] RX commands: `rx_config`, `rx_start`, `rx_stop`
 - [x] Asynchronous `signal_received` events
 - [x] CC1101 initialization and configuration
+- [x] TX Operations (signal transmission/replay)
+- [x] TX command: `tx_send` with timing array and repeat count
+- [x] Automatic TX pin toggling with microsecond precision
 
 ### 🚧 In Development (Phase 2)
-- [ ] TX Operations (transmission/replay)
 - [ ] Jammer (frequency blocking)
 - [ ] Scanner & Spectrum Analyzer
 
@@ -308,6 +310,36 @@ Stop receiving. Triggers signal analysis if signal was captured.
 {"status":"ok","cmd":"rx_stop","id":6}
 ```
 
+#### 7. tx_send
+Transmit RF signal using captured timings.
+
+**Command:**
+```json
+{
+  "cmd":"tx_send",
+  "id":7,
+  "params":{
+    "module":1,
+    "timings_us":[450,1200,450,1200,450,450],
+    "repeat":5
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "status":"ok",
+  "cmd":"tx_send",
+  "id":7,
+  "data":{
+    "module":1,
+    "count":6,
+    "repeat":5
+  }
+}
+```
+
 ### Asynchronous Events
 
 The firmware sends events without request:
@@ -444,7 +476,7 @@ pio run
 ## 📊 Firmware Statistics
 
 - **RAM Usage**: 11.6% (38,136 / 327,680 bytes)
-- **Flash Usage**: 22.0% (288,749 / 1,310,720 bytes)
+- **Flash Usage**: 22.1% (289,821 / 1,310,720 bytes)
 - **Build Time**: ~4 seconds
 - **Upload Speed**: 921600 baud
 
@@ -482,4 +514,4 @@ GPL-3.0 - See LICENSE for details.
 
 **Last Update**: January 2025
 **Firmware Version**: 2.0.0-tui
-**Status**: 🚧 Phase 1 complete, Phase 2 RX complete, TX/Jammer/Scanner in development
+**Status**: 🚧 Phase 1 complete, Phase 2 RX/TX complete, Jammer/Scanner in development

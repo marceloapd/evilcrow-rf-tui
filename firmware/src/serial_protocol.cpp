@@ -81,6 +81,7 @@ void handleReboot(int cmd_id);
 void handleRxConfig(int cmd_id, JsonObject params);
 void handleRxStart(int cmd_id, JsonObject params);
 void handleRxStop(int cmd_id);
+void handleTxSend(int cmd_id, JsonObject params);
 
 void processSerialCommand() {
     while (Serial.available()) {
@@ -129,6 +130,9 @@ void processSerialCommand() {
                 else if (strcmp(cmd, "rx_stop") == 0) {
                     handleRxStop(cmd_id);
                 }
+                else if (strcmp(cmd, "tx_send") == 0) {
+                    handleTxSend(cmd_id, params);
+                }
                 else {
                     sendError(cmd_id, cmd, "Unknown command");
                 }
@@ -163,7 +167,7 @@ void handleGetStatus(int cmd_id) {
     JsonObject data = doc.to<JsonObject>();
 
     data["rx_active"] = isRXActive();
-    data["tx_active"] = false;
+    data["tx_active"] = isTXActive();
     data["jammer_active"] = false;
     data["module"] = currentModule;
     data["frequency_mhz"] = currentFrequency;
@@ -263,4 +267,51 @@ void handleRxStop(int cmd_id) {
 
     // Send response
     sendSimpleResponse(cmd_id, "rx_stop", "ok");
+}
+
+void handleTxSend(int cmd_id, JsonObject params) {
+    if (params.isNull()) {
+        sendError(cmd_id, "tx_send", "Missing params");
+        return;
+    }
+
+    if (!params.containsKey("timings_us")) {
+        sendError(cmd_id, "tx_send", "Missing timings_us");
+        return;
+    }
+
+    // Extract parameters
+    int module = params["module"] | currentModule;
+    int repeat = params["repeat"] | 1;
+    JsonArray timingsArray = params["timings_us"];
+
+    if (timingsArray.isNull() || timingsArray.size() == 0) {
+        sendError(cmd_id, "tx_send", "Invalid timings_us");
+        return;
+    }
+
+    // Check size limit
+    if (timingsArray.size() > MAX_SAMPLES) {
+        sendError(cmd_id, "tx_send", "Too many timings (max 2000)");
+        return;
+    }
+
+    // Copy timings to array
+    unsigned long timings[MAX_SAMPLES];
+    int count = timingsArray.size();
+    for (int i = 0; i < count; i++) {
+        timings[i] = timingsArray[i];
+    }
+
+    // Transmit signal
+    transmitSignal(module, timings, count, repeat);
+
+    // Send response
+    StaticJsonDocument<256> doc;
+    JsonObject data = doc.to<JsonObject>();
+    data["module"] = module;
+    data["count"] = count;
+    data["repeat"] = repeat;
+
+    sendResponse(cmd_id, "tx_send", "ok", data);
 }

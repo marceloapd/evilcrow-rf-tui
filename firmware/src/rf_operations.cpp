@@ -24,6 +24,9 @@ static String analysisOutput = "";
 // Signal analysis
 static int lastSmoothIndex = 0;
 
+// TX state
+static bool txActive = false;
+
 // Interrupt handler for RX
 void RECEIVE_ATTR receiver() {
     const long time = micros();
@@ -289,9 +292,51 @@ unsigned long* getSmoothedSamples() {
     return smoothedSamples;
 }
 
-// TX Operations (stub for now)
+// TX Operations
 void transmitSignal(int module, unsigned long* timings, int count, int repeat) {
-    // TODO: Implement TX
+    if (rxActive) {
+        stopRX();
+    }
+
+    txActive = true;
+
+    // Select TX pin based on module
+    int txPin = (module == 1) ? CC1101_1_TX : CC1101_2_TX;
+    pinMode(txPin, OUTPUT);
+    digitalWrite(txPin, LOW);
+
+    // Set CC1101 to TX mode
+    ELECHOUSE_cc1101.SetTx();
+
+    // Transmit signal 'repeat' times
+    for (int r = 0; r < repeat; r++) {
+        bool pinState = LOW;
+
+        for (int i = 0; i < count; i++) {
+            // Toggle pin state
+            pinState = !pinState;
+            digitalWrite(txPin, pinState);
+
+            // Wait for timing duration
+            delayMicroseconds(timings[i]);
+        }
+
+        // End with pin LOW
+        digitalWrite(txPin, LOW);
+
+        // Small delay between repeats
+        if (r < repeat - 1) {
+            delay(10);
+        }
+    }
+
+    // Return to RX mode
+    ELECHOUSE_cc1101.SetRx();
+    txActive = false;
+}
+
+bool isTXActive() {
+    return txActive;
 }
 
 // Jammer Operations (stub for now)

@@ -9,8 +9,9 @@ void startRX(int module);
 void stopRX();
 bool isRXActive();
 
-// TX Operations (to be implemented)
+// TX Operations
 void transmitSignal(int module, unsigned long* timings, int count, int repeat);
+bool isTXActive();
 
 // Jammer Operations (to be implemented)
 void startJammer(int module, float frequency, int power);

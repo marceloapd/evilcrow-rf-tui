@@ -31,6 +31,12 @@ void setup() {
     digitalWrite(CC1101_1_CS, HIGH);
     digitalWrite(CC1101_2_CS, HIGH);
 
+    // Initialize TX pins
+    pinMode(CC1101_1_TX, OUTPUT);
+    pinMode(CC1101_2_TX, OUTPUT);
+    digitalWrite(CC1101_1_TX, LOW);
+    digitalWrite(CC1101_2_TX, LOW);
+
     // Initialize CC1101 Module 1
     ELECHOUSE_cc1101.setSpiPin(SPI_SCK, SPI_MISO, SPI_MOSI, CC1101_1_CS);
     ELECHOUSE_cc1101.Init();
