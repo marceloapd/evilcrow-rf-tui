@@ -13,9 +13,10 @@ bool isRXActive();
 void transmitSignal(int module, unsigned long* timings, int count, int repeat);
 bool isTXActive();
 
-// Jammer Operations (to be implemented)
+// Jammer Operations
 void startJammer(int module, float frequency, int power);
 void stopJammer();
+bool isJammerActive();
 
 // Signal analysis
 void analyzeSignal();

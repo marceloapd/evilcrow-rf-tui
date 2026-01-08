@@ -27,6 +27,10 @@ static int lastSmoothIndex = 0;
 // TX state
 static bool txActive = false;
 
+// Jammer state
+static bool jammerActive = false;
+static int jammerModule = 1;
+
 // Interrupt handler for RX
 void RECEIVE_ATTR receiver() {
     const long time = micros();
@@ -339,11 +343,58 @@ bool isTXActive() {
     return txActive;
 }
 
-// Jammer Operations (stub for now)
+// Jammer Operations
 void startJammer(int module, float frequency, int power) {
-    // TODO: Implement Jammer
+    if (jammerActive) {
+        stopJammer();
+    }
+
+    // Stop RX/TX if active
+    if (rxActive) {
+        stopRX();
+    }
+
+    jammerActive = true;
+    jammerModule = module;
+
+    // Select TX pin based on module
+    int txPin = (module == 1) ? CC1101_1_TX : CC1101_2_TX;
+    pinMode(txPin, OUTPUT);
+
+    // Configure CC1101 for jamming
+    int csPin = (module == 1) ? CC1101_1_CS : CC1101_2_CS;
+    ELECHOUSE_cc1101.setSpiPin(SPI_SCK, SPI_MISO, SPI_MOSI, csPin);
+    ELECHOUSE_cc1101.Init();
+    ELECHOUSE_cc1101.setMHZ(frequency);
+
+    // Set TX power if specified (0-10 dBm range typically)
+    if (power >= 0 && power <= 12) {
+        ELECHOUSE_cc1101.setPA(power);
+    }
+
+    // Set to TX mode for continuous carrier
+    ELECHOUSE_cc1101.SetTx();
+
+    // Start continuous carrier transmission
+    // We'll toggle the TX pin rapidly to create noise/interference
+    digitalWrite(txPin, HIGH);
 }
 
 void stopJammer() {
-    // TODO: Implement Jammer stop
+    if (!jammerActive) {
+        return;
+    }
+
+    // Stop TX
+    int txPin = (jammerModule == 1) ? CC1101_1_TX : CC1101_2_TX;
+    digitalWrite(txPin, LOW);
+
+    // Return CC1101 to RX mode
+    ELECHOUSE_cc1101.SetRx();
+
+    jammerActive = false;
+}
+
+bool isJammerActive() {
+    return jammerActive;
 }

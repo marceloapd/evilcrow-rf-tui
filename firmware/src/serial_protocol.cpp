@@ -82,6 +82,8 @@ void handleRxConfig(int cmd_id, JsonObject params);
 void handleRxStart(int cmd_id, JsonObject params);
 void handleRxStop(int cmd_id);
 void handleTxSend(int cmd_id, JsonObject params);
+void handleJammerStart(int cmd_id, JsonObject params);
+void handleJammerStop(int cmd_id);
 
 void processSerialCommand() {
     while (Serial.available()) {
@@ -133,6 +135,12 @@ void processSerialCommand() {
                 else if (strcmp(cmd, "tx_send") == 0) {
                     handleTxSend(cmd_id, params);
                 }
+                else if (strcmp(cmd, "jammer_start") == 0) {
+                    handleJammerStart(cmd_id, params);
+                }
+                else if (strcmp(cmd, "jammer_stop") == 0) {
+                    handleJammerStop(cmd_id);
+                }
                 else {
                     sendError(cmd_id, cmd, "Unknown command");
                 }
@@ -168,7 +176,7 @@ void handleGetStatus(int cmd_id) {
 
     data["rx_active"] = isRXActive();
     data["tx_active"] = isTXActive();
-    data["jammer_active"] = false;
+    data["jammer_active"] = isJammerActive();
     data["module"] = currentModule;
     data["frequency_mhz"] = currentFrequency;
     data["free_heap"] = ESP.getFreeHeap();
@@ -314,4 +322,41 @@ void handleTxSend(int cmd_id, JsonObject params) {
     data["repeat"] = repeat;
 
     sendResponse(cmd_id, "tx_send", "ok", data);
+}
+
+void handleJammerStart(int cmd_id, JsonObject params) {
+    if (params.isNull()) {
+        sendError(cmd_id, "jammer_start", "Missing params");
+        return;
+    }
+
+    // Extract parameters
+    int module = params["module"] | currentModule;
+    float frequency = params["frequency_mhz"] | currentFrequency;
+    int power = params["power_dbm"] | 10; // Default 10 dBm
+
+    // Start jammer
+    startJammer(module, frequency, power);
+
+    // Send response
+    StaticJsonDocument<256> doc;
+    JsonObject data = doc.to<JsonObject>();
+    data["module"] = module;
+    data["frequency_mhz"] = frequency;
+    data["power_dbm"] = power;
+
+    sendResponse(cmd_id, "jammer_start", "ok", data);
+}
+
+void handleJammerStop(int cmd_id) {
+    if (!isJammerActive()) {
+        sendError(cmd_id, "jammer_stop", "Jammer not active");
+        return;
+    }
+
+    // Stop jammer
+    stopJammer();
+
+    // Send response
+    sendSimpleResponse(cmd_id, "jammer_stop", "ok");
 }

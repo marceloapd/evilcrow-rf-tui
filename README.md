@@ -14,7 +14,7 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - [x] Compilation working (RAM: 11.6%, Flash: 22.0%)
 - [x] Serial protocol tests passing
 
-### ✅ Implemented (Phase 2 - RX & TX)
+### ✅ Implemented (Phase 2 - RX, TX & Jammer)
 - [x] RX Operations (signal capture with interrupt handler)
 - [x] Signal analysis (timing patterns, binary representation)
 - [x] RX commands: `rx_config`, `rx_start`, `rx_stop`
@@ -23,9 +23,11 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - [x] TX Operations (signal transmission/replay)
 - [x] TX command: `tx_send` with timing array and repeat count
 - [x] Automatic TX pin toggling with microsecond precision
+- [x] Jammer Operations (frequency blocking)
+- [x] Jammer commands: `jammer_start`, `jammer_stop`
+- [x] Continuous carrier transmission for jamming
 
 ### 🚧 In Development (Phase 2)
-- [ ] Jammer (frequency blocking)
 - [ ] Scanner & Spectrum Analyzer
 
 ### 📋 Planned (Phase 3 - Python TUI)
@@ -347,6 +349,49 @@ Transmit RF signal using captured timings.
 }
 ```
 
+#### 8. jammer_start
+Start RF jammer on specific frequency. **WARNING: Use only in authorized environments!**
+
+**Command:**
+```json
+{
+  "cmd":"jammer_start",
+  "id":8,
+  "params":{
+    "module":1,
+    "frequency_mhz":433.92,
+    "power_dbm":10
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "status":"ok",
+  "cmd":"jammer_start",
+  "id":8,
+  "data":{
+    "module":1,
+    "frequency_mhz":433.92,
+    "power_dbm":10
+  }
+}
+```
+
+#### 9. jammer_stop
+Stop RF jammer.
+
+**Command:**
+```json
+{"cmd":"jammer_stop","id":9}
+```
+
+**Response:**
+```json
+{"status":"ok","cmd":"jammer_stop","id":9}
+```
+
 ### Asynchronous Events
 
 The firmware sends events without request:
@@ -482,8 +527,8 @@ pio run
 
 ## 📊 Firmware Statistics
 
-- **RAM Usage**: 11.6% (38,136 / 327,680 bytes)
-- **Flash Usage**: 22.1% (289,821 / 1,310,720 bytes)
+- **RAM Usage**: 11.6% (38,152 / 327,680 bytes)
+- **Flash Usage**: 22.2% (290,509 / 1,310,720 bytes)
 - **Build Time**: ~4 seconds
 - **Upload Speed**: 921600 baud
 
@@ -521,4 +566,4 @@ GPL-3.0 - See LICENSE for details.
 
 **Last Update**: January 2025
 **Firmware Version**: 2.0.0-tui
-**Status**: 🚧 Phase 1 complete, Phase 2 RX/TX complete, Jammer/Scanner in development
+**Status**: 🚧 Phase 1 complete, Phase 2 RX/TX/Jammer complete, Scanner in development
