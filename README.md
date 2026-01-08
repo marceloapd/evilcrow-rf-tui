@@ -11,11 +11,17 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - [x] JSON Lines serial protocol
 - [x] Basic commands: `ping`, `get_status`, `reboot`
 - [x] Flash and test scripts
-- [x] Compilation working (RAM: 6.6%, Flash: 21.1%)
+- [x] Compilation working (RAM: 11.6%, Flash: 22.0%)
 - [x] Serial protocol tests passing
 
+### ✅ Implemented (Phase 2 - RX)
+- [x] RX Operations (signal capture with interrupt handler)
+- [x] Signal analysis (timing patterns, binary representation)
+- [x] RX commands: `rx_config`, `rx_start`, `rx_stop`
+- [x] Asynchronous `signal_received` events
+- [x] CC1101 initialization and configuration
+
 ### 🚧 In Development (Phase 2)
-- [ ] RX Operations (signal capture)
 - [ ] TX Operations (transmission/replay)
 - [ ] Jammer (frequency blocking)
 - [ ] Scanner & Spectrum Analyzer
@@ -238,6 +244,70 @@ Restarts the ESP32.
 {"status":"ok","cmd":"reboot","id":3}
 ```
 
+#### 4. rx_config
+Configure RX parameters (frequency, module, modulation, etc.).
+
+**Command:**
+```json
+{
+  "cmd":"rx_config",
+  "id":4,
+  "params":{
+    "module":1,
+    "frequency_mhz":433.92,
+    "modulation":2,
+    "rx_bandwidth_khz":812.5
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "status":"ok",
+  "cmd":"rx_config",
+  "id":4,
+  "data":{
+    "module":1,
+    "frequency_mhz":433.92
+  }
+}
+```
+
+#### 5. rx_start
+Start receiving RF signals.
+
+**Command:**
+```json
+{"cmd":"rx_start","id":5}
+```
+
+**Response:**
+```json
+{
+  "status":"ok",
+  "cmd":"rx_start",
+  "id":5,
+  "data":{
+    "module":1,
+    "frequency_mhz":433.92
+  }
+}
+```
+
+#### 6. rx_stop
+Stop receiving. Triggers signal analysis if signal was captured.
+
+**Command:**
+```json
+{"cmd":"rx_stop","id":6}
+```
+
+**Response:**
+```json
+{"status":"ok","cmd":"rx_stop","id":6}
+```
+
 ### Asynchronous Events
 
 The firmware sends events without request:
@@ -250,6 +320,22 @@ The firmware sends events without request:
   "timestamp":0,
   "data":{
     "firmware_version":"2.0.0-tui"
+  }
+}
+```
+
+**'signal_received' event** (when signal captured):
+```json
+{
+  "type":"event",
+  "event":"signal_received",
+  "timestamp":12345,
+  "data":{
+    "sample_count":245,
+    "samples_per_symbol":450,
+    "raw_timings_us":[450,1200,450,1200,...],
+    "total_samples":245,
+    "analysis":"Binary: 01010101... Samples/Symbol: 450us Smoothed count: 120"
   }
 }
 ```
@@ -357,9 +443,9 @@ pio run
 
 ## 📊 Firmware Statistics
 
-- **RAM Usage**: 6.6% (21,488 / 327,680 bytes)
-- **Flash Usage**: 21.1% (276,625 / 1,310,720 bytes)
-- **Build Time**: ~8 seconds
+- **RAM Usage**: 11.6% (38,136 / 327,680 bytes)
+- **Flash Usage**: 22.0% (288,749 / 1,310,720 bytes)
+- **Build Time**: ~4 seconds
 - **Upload Speed**: 921600 baud
 
 ## ⚠️ Legal Disclaimer
@@ -396,4 +482,4 @@ GPL-3.0 - See LICENSE for details.
 
 **Last Update**: January 2025
 **Firmware Version**: 2.0.0-tui
-**Status**: 🚧 Phase 1 complete, Phase 2 in development
+**Status**: 🚧 Phase 1 complete, Phase 2 RX complete, TX/Jammer/Scanner in development

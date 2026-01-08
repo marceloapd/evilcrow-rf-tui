@@ -1,6 +1,13 @@
 #include "serial_protocol.h"
 #include "config.h"
+#include "cc1101_driver.h"
+#include "rf_operations.h"
 #include <ArduinoJson.h>
+
+// External references
+extern ELECHOUSE_CC1101 ELECHOUSE_cc1101;
+extern int currentModule;
+extern float currentFrequency;
 
 // Buffer for incoming serial data
 String serialBuffer = "";
@@ -71,6 +78,9 @@ void sendEvent(const char* event_name, JsonObject data) {
 void handlePing(int cmd_id);
 void handleGetStatus(int cmd_id);
 void handleReboot(int cmd_id);
+void handleRxConfig(int cmd_id, JsonObject params);
+void handleRxStart(int cmd_id, JsonObject params);
+void handleRxStop(int cmd_id);
 
 void processSerialCommand() {
     while (Serial.available()) {
@@ -97,6 +107,9 @@ void processSerialCommand() {
                     return;
                 }
 
+                // Extract params if present
+                JsonObject params = doc["params"];
+
                 // Route command to appropriate handler
                 if (strcmp(cmd, "ping") == 0) {
                     handlePing(cmd_id);
@@ -106,6 +119,15 @@ void processSerialCommand() {
                 }
                 else if (strcmp(cmd, "reboot") == 0) {
                     handleReboot(cmd_id);
+                }
+                else if (strcmp(cmd, "rx_config") == 0) {
+                    handleRxConfig(cmd_id, params);
+                }
+                else if (strcmp(cmd, "rx_start") == 0) {
+                    handleRxStart(cmd_id, params);
+                }
+                else if (strcmp(cmd, "rx_stop") == 0) {
+                    handleRxStop(cmd_id);
                 }
                 else {
                     sendError(cmd_id, cmd, "Unknown command");
@@ -140,11 +162,11 @@ void handleGetStatus(int cmd_id) {
     StaticJsonDocument<512> doc;
     JsonObject data = doc.to<JsonObject>();
 
-    data["rx_active"] = false;  // Will be updated by rf_operations
+    data["rx_active"] = isRXActive();
     data["tx_active"] = false;
     data["jammer_active"] = false;
-    data["module"] = 1;
-    data["frequency_mhz"] = DEFAULT_FREQUENCY;
+    data["module"] = currentModule;
+    data["frequency_mhz"] = currentFrequency;
     data["free_heap"] = ESP.getFreeHeap();
     data["uptime_ms"] = millis();
 
@@ -155,4 +177,90 @@ void handleReboot(int cmd_id) {
     sendSimpleResponse(cmd_id, "reboot", "ok");
     delay(100);
     ESP.restart();
+}
+
+void handleRxConfig(int cmd_id, JsonObject params) {
+    if (params.isNull()) {
+        sendError(cmd_id, "rx_config", "Missing params");
+        return;
+    }
+
+    // Stop RX if active
+    if (isRXActive()) {
+        stopRX();
+    }
+
+    // Extract parameters
+    int module = params["module"] | 1;
+    float frequency = params["frequency_mhz"] | DEFAULT_FREQUENCY;
+
+    // Update global state
+    currentModule = module;
+    currentFrequency = frequency;
+
+    // Configure CC1101
+    int csPin = (module == 1) ? CC1101_1_CS : CC1101_2_CS;
+    ELECHOUSE_cc1101.setSpiPin(SPI_SCK, SPI_MISO, SPI_MOSI, csPin);
+    ELECHOUSE_cc1101.Init();
+    ELECHOUSE_cc1101.setMHZ(frequency);
+
+    // Optional: Set modulation if provided
+    if (params.containsKey("modulation")) {
+        int mod = params["modulation"];
+        ELECHOUSE_cc1101.setModulation(mod);
+    }
+
+    // Optional: Set RX bandwidth if provided
+    if (params.containsKey("rx_bandwidth_khz")) {
+        float rxBW = params["rx_bandwidth_khz"];
+        ELECHOUSE_cc1101.setRxBW(rxBW);
+    }
+
+    // Set to RX mode
+    ELECHOUSE_cc1101.SetRx();
+
+    // Send response
+    StaticJsonDocument<256> doc;
+    JsonObject data = doc.to<JsonObject>();
+    data["module"] = module;
+    data["frequency_mhz"] = frequency;
+
+    sendResponse(cmd_id, "rx_config", "ok", data);
+}
+
+void handleRxStart(int cmd_id, JsonObject params) {
+    if (isRXActive()) {
+        sendError(cmd_id, "rx_start", "RX already active");
+        return;
+    }
+
+    // Module selection (default to currentModule)
+    int module = currentModule;
+    if (!params.isNull() && params.containsKey("module")) {
+        module = params["module"];
+    }
+
+    // Start RX
+    startRX(module);
+
+    // Send response
+    StaticJsonDocument<256> doc;
+    JsonObject data = doc.to<JsonObject>();
+    data["module"] = module;
+    data["frequency_mhz"] = currentFrequency;
+
+    sendResponse(cmd_id, "rx_start", "ok", data);
+}
+
+void handleRxStop(int cmd_id) {
+    if (!isRXActive()) {
+        sendError(cmd_id, "rx_stop", "RX not active");
+        return;
+    }
+
+    // Stop RX (this will trigger signal analysis and send signal_received event)
+    stopRX();
+
+    // Send response
+    sendSimpleResponse(cmd_id, "rx_stop", "ok");
 }

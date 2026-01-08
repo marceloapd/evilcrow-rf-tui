@@ -22,4 +22,8 @@ void sendSimpleResponse(int cmd_id, const char* cmd, const char* status);
 // Helper: send error response
 void sendError(int cmd_id, const char* cmd, const char* error_msg);
 
+// Global state accessible to command handlers
+extern int currentModule;
+extern float currentFrequency;
+
 #endif // SERIAL_PROTOCOL_H
