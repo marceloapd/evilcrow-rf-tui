@@ -1,191 +1,191 @@
 # Evil Crow RF V2 - TUI Edition
 
-Uma interface TUI (Text User Interface) moderna para controlar o Evil Crow RF V2 via serial USB, com ataques avançados e compatibilidade com Flipper Zero e URH.
+A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial, featuring advanced attacks and compatibility with Flipper Zero and URH.
 
-## 📊 Status do Projeto
+## 📊 Project Status
 
-### ✅ Implementado (Fase 1)
-- [x] Estrutura do projeto (mono-repo)
-- [x] PlatformIO configurado
-- [x] Driver CC1101 migrado (1308 linhas)
-- [x] Protocolo serial JSON Lines
-- [x] Comandos básicos: `ping`, `get_status`, `reboot`
-- [x] Scripts de flash e teste
-- [x] Compilação funcionando (RAM: 6.6%, Flash: 21.1%)
-- [x] Testes de protocolo serial passando
+### ✅ Implemented (Phase 1)
+- [x] Project structure (mono-repo)
+- [x] PlatformIO configured
+- [x] CC1101 driver migrated (1308 lines)
+- [x] JSON Lines serial protocol
+- [x] Basic commands: `ping`, `get_status`, `reboot`
+- [x] Flash and test scripts
+- [x] Compilation working (RAM: 6.6%, Flash: 21.1%)
+- [x] Serial protocol tests passing
 
-### 🚧 Em Desenvolvimento (Fase 2)
-- [ ] RX Operations (captura de sinais)
-- [ ] TX Operations (transmissão/replay)
-- [ ] Jammer (bloqueio de frequências)
+### 🚧 In Development (Phase 2)
+- [ ] RX Operations (signal capture)
+- [ ] TX Operations (transmission/replay)
+- [ ] Jammer (frequency blocking)
 - [ ] Scanner & Spectrum Analyzer
 
-### 📋 Planejado (Fases 3-4)
-- [ ] Ataques avançados (Rolljam, Rollback, Bruteforce)
-- [ ] TUI Python com Textual
-- [ ] Formatos de arquivo (RAW, BIN, SUB, URH)
+### 📋 Planned (Phases 3-4)
+- [ ] Advanced attacks (Rolljam, Rollback, Bruteforce)
+- [ ] Python TUI with Textual
+- [ ] File formats (RAW, BIN, SUB, URH)
 - [ ] Storage manager (~/.evilcrow/)
-- [ ] 12 telas interativas
-- [ ] Spectrum analyzer visual
+- [ ] 12 interactive screens
+- [ ] Visual spectrum analyzer
 
-## 🎯 Features Planejadas
+## 🎯 Planned Features
 
 ### RF Operations
-- **Record**: Captura sinais RF com spectrum analyzer em tempo real
-- **Transmit**: Replay de sinais capturados
-- **Jammer**: Bloqueio de frequências específicas
-- **Scanner**: Varredura automática de frequências (300-928 MHz)
+- **Record**: RF signal capture with real-time spectrum analyzer
+- **Transmit**: Captured signal replay
+- **Jammer**: Specific frequency blocking
+- **Scanner**: Automatic frequency sweep (300-928 MHz)
 
-### Ataques Avançados
-- **Rolljam**: Ataque a rolling codes
-- **Rollback**: Replay de códigos antigos
-- **Bruteforce**: Força bruta em DIP switches e códigos fixos
+### Advanced Attacks
+- **Rolljam**: Rolling code attack
+- **Rollback**: Replay old codes
+- **Bruteforce**: Brute force on DIP switches and fixed codes
 
-### Formatos Suportados
-- **RAW**: JSON com timings
-- **BIN**: Formato binário compacto
-- **SUB**: Compatível com Flipper Zero (.sub)
-- **URH**: Compatível com Universal Radio Hacker
+### Supported Formats
+- **RAW**: JSON with timings
+- **BIN**: Compact binary format
+- **SUB**: Flipper Zero compatible (.sub)
+- **URH**: Universal Radio Hacker compatible
 
-## 📋 Requisitos
+## 📋 Requirements
 
 ### Hardware
 - Evil Crow RF V2
-- Cabo USB
+- USB Cable
 
 ### Software
-- **PlatformIO** (para compilar firmware)
-- **Python 3.8+** (para TUI - ainda não implementada)
-- **Linux** (testado em Arch Linux)
+- **PlatformIO** (to compile firmware)
+- **Python 3.8+** (for TUI - not yet implemented)
+- **Linux** (tested on Arch Linux)
 
-## 🔧 Instalação
+## 🔧 Installation
 
-### 1. Instalar PlatformIO
+### 1. Install PlatformIO
 
 ```bash
-# Arch Linux - via pipx (recomendado)
+# Arch Linux - via pipx (recommended)
 sudo pacman -S python-pipx
 pipx install platformio
 
-# Ou em outras distros
+# Or on other distros
 pip install --user platformio
 ```
 
-### 2. Configurar Permissões USB
+### 2. Configure USB Permissions
 
 ```bash
-# Arch Linux - adicionar ao grupo uucp
+# Arch Linux - add to uucp group
 sudo usermod -a -G uucp $USER
 
-# Outras distros - adicionar ao grupo dialout
+# Other distros - add to dialout group
 sudo usermod -a -G dialout $USER
 
-# Instalar regras udev do PlatformIO (recomendado)
+# Install PlatformIO udev rules (recommended)
 curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/system/99-platformio-udev.rules | sudo tee /etc/udev/rules.d/99-platformio-udev.rules
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 
-# IMPORTANTE: Fazer logout/login para aplicar mudanças de grupo
+# IMPORTANT: Logout/login to apply group changes
 ```
 
-### 3. Clonar e Compilar Firmware
+### 3. Clone and Compile Firmware
 
 ```bash
-# Clonar repositório
+# Clone repository
 git clone https://github.com/you/evilcrow-rf-tui.git
 cd evilcrow-rf-tui/firmware
 
-# Compilar
+# Compile
 pio run
 
-# Flashear no Evil Crow
+# Flash to Evil Crow
 pio run --target upload
 
-# Ou usar o script
+# Or use the script
 cd ..
 ./scripts/flash_firmware.sh
 ```
 
-## 🧪 Testando o Firmware
+## 🧪 Testing the Firmware
 
-### Método 1: Script Python
+### Method 1: Python Script
 
 ```bash
 python scripts/test_serial.py
 ```
 
-**Saída esperada:**
+**Expected output:**
 ```
-🔌 Conectando em /dev/ttyUSB0 @ 115200 baud...
-✅ Conectado!
-📡 Aguardando evento 'ready'...
+🔌 Connecting to /dev/ttyUSB0 @ 115200 baud...
+✅ Connected!
+📡 Waiting for 'ready' event...
 ← {"type":"event","event":"ready","timestamp":123,"data":{"firmware_version":"2.0.0-tui"}}
 ✅ Device ready! Firmware: 2.0.0-tui
 
-🧪 Testando comandos...
+🧪 Testing commands...
 
-📤 Enviando: ping
-📥 Resposta: {"status":"ok","cmd":"ping","id":1,"data":{"firmware_version":"2.0.0-tui","uptime_ms":84073,"free_heap":350660}}
+📤 Sending: ping
+📥 Response: {"status":"ok","cmd":"ping","id":1,"data":{"firmware_version":"2.0.0-tui","uptime_ms":84073,"free_heap":350660}}
    ✅ Status: OK
    📊 Uptime: 84073 ms
    💾 Free Heap: 350660 bytes
    📦 Firmware: 2.0.0-tui
 ```
 
-### Método 2: Monitor Serial
+### Method 2: Serial Monitor
 
 ```bash
 # Terminal 1: Monitor
 cd firmware
 pio device monitor
 
-# Terminal 2: Enviar comandos
+# Terminal 2: Send commands
 echo '{"cmd":"ping","id":1}' > /dev/ttyUSB0
 echo '{"cmd":"get_status","id":2}' > /dev/ttyUSB0
 ```
 
-## 📁 Estrutura Atual do Projeto
+## 📁 Current Project Structure
 
 ```
 evilcrow-rf-tui/
 ├── firmware/              # ESP32 firmware (PlatformIO)
 │   ├── src/
-│   │   ├── main.cpp              ✅ Implementado
-│   │   ├── config.h              ✅ Implementado
-│   │   ├── serial_protocol.cpp/h ✅ Implementado
-│   │   ├── cc1101_driver.cpp/h   ✅ Implementado (1308 linhas)
-│   │   ├── rf_operations.cpp/h   🚧 Próximo
-│   │   └── signal_analysis.cpp/h 🚧 Próximo
-│   ├── platformio.ini        ✅ Configurado
-│   └── .gitignore           ✅ Configurado
+│   │   ├── main.cpp              ✅ Implemented
+│   │   ├── config.h              ✅ Implemented
+│   │   ├── serial_protocol.cpp/h ✅ Implemented
+│   │   ├── cc1101_driver.cpp/h   ✅ Implemented (1308 lines)
+│   │   ├── rf_operations.cpp/h   🚧 Next
+│   │   └── signal_analysis.cpp/h 🚧 Next
+│   ├── platformio.ini        ✅ Configured
+│   └── .gitignore           ✅ Configured
 │
 ├── tui/                   # Python TUI
-│   └── (ainda não implementado)
+│   └── (not yet implemented)
 │
 ├── scripts/
-│   ├── flash_firmware.sh  ✅ Implementado
-│   └── test_serial.py     ✅ Implementado
+│   ├── flash_firmware.sh  ✅ Implemented
+│   └── test_serial.py     ✅ Implemented
 │
-├── docs/                  📋 Planejado
-├── .gitignore            ✅ Configurado
-└── README.md             ✅ Atualizado
+├── docs/                  📋 Planned
+├── .gitignore            ✅ Configured
+└── README.md             ✅ Updated
 ```
 
-## 🔌 Protocolo Serial (Implementado)
+## 🔌 Serial Protocol (Implemented)
 
-O firmware usa **JSON Lines** (um objeto JSON por linha) para comunicação serial a 115200 baud.
+The firmware uses **JSON Lines** (one JSON object per line) for serial communication at 115200 baud.
 
-### Comandos Disponíveis
+### Available Commands
 
 #### 1. ping
-Testa comunicação e retorna informações do device.
+Tests communication and returns device information.
 
-**Comando:**
+**Command:**
 ```json
 {"cmd":"ping","id":1}
 ```
 
-**Resposta:**
+**Response:**
 ```json
 {
   "status":"ok",
@@ -200,14 +200,14 @@ Testa comunicação e retorna informações do device.
 ```
 
 #### 2. get_status
-Retorna o estado atual do dispositivo.
+Returns current device state.
 
-**Comando:**
+**Command:**
 ```json
 {"cmd":"get_status","id":2}
 ```
 
-**Resposta:**
+**Response:**
 ```json
 {
   "status":"ok",
@@ -226,23 +226,23 @@ Retorna o estado atual do dispositivo.
 ```
 
 #### 3. reboot
-Reinicia o ESP32.
+Restarts the ESP32.
 
-**Comando:**
+**Command:**
 ```json
 {"cmd":"reboot","id":3}
 ```
 
-**Resposta:**
+**Response:**
 ```json
 {"status":"ok","cmd":"reboot","id":3}
 ```
 
-### Eventos Assíncronos
+### Asynchronous Events
 
-O firmware envia eventos sem solicitar:
+The firmware sends events without request:
 
-**Evento 'ready'** (ao iniciar):
+**'ready' event** (on boot):
 ```json
 {
   "type":"event",
@@ -254,9 +254,9 @@ O firmware envia eventos sem solicitar:
 }
 ```
 
-## 🛠️ Desenvolvimento
+## 🛠️ Development
 
-### Compilar
+### Compile
 
 ```bash
 cd firmware
@@ -269,13 +269,13 @@ pio run
 pio run --target upload
 ```
 
-### Monitor Serial
+### Serial Monitor
 
 ```bash
 pio device monitor
 ```
 
-### Limpar Build
+### Clean Build
 
 ```bash
 pio run --target clean
@@ -283,40 +283,40 @@ pio run --target clean
 
 ## 🐛 Troubleshooting
 
-### Porta ocupada ou sem permissão
+### Port busy or permission denied
 
 ```bash
-# Verificar porta
+# Check port
 ls -l /dev/ttyUSB*
 
-# Adicionar ao grupo correto
+# Add to correct group
 # Arch Linux
 sudo usermod -a -G uucp $USER
 
 # Ubuntu/Debian
 sudo usermod -a -G dialout $USER
 
-# Aplicar mudanças (logout/login ou)
-newgrp uucp  # ou newgrp dialout
+# Apply changes (logout/login or)
+newgrp uucp  # or newgrp dialout
 ```
 
-### PlatformIO não encontrado
+### PlatformIO not found
 
 ```bash
-# Verificar instalação
+# Check installation
 pio --version
 
-# Se não funcionar, verificar PATH
+# If it doesn't work, check PATH
 echo $PATH | grep .local/bin
 
-# Adicionar ao PATH se necessário
+# Add to PATH if needed
 export PATH=$PATH:~/.local/bin
 ```
 
-### Compilação falha
+### Compilation fails
 
 ```bash
-# Limpar e recompilar
+# Clean and recompile
 cd firmware
 pio run --target clean
 pio run
@@ -324,69 +324,69 @@ pio run
 
 ## 📈 Roadmap
 
-### Fase 1: Firmware Básico ✅ (Completa)
-- Setup do projeto
-- Driver CC1101
-- Protocolo serial
-- Comandos básicos
+### Phase 1: Basic Firmware ✅ (Complete)
+- Project setup
+- CC1101 driver
+- Serial protocol
+- Basic commands
 
-### Fase 2: Operações RF 🚧 (Em andamento)
-- RX (captura de sinais)
-- TX (transmissão)
+### Phase 2: RF Operations 🚧 (In progress)
+- RX (signal capture)
+- TX (transmission)
 - Jammer
 - Scanner & Spectrum
 
-### Fase 3: Ataques Avançados 📋 (Planejado)
+### Phase 3: Advanced Attacks 📋 (Planned)
 - Rolljam
 - Rollback
 - Bruteforce
 - Protocol detection
 
-### Fase 4: TUI Python 📋 (Planejado)
-- Cliente serial Python
-- Interface Textual
+### Phase 4: Python TUI 📋 (Planned)
+- Python serial client
+- Textual interface
 - Storage manager
-- Formatos de arquivo (RAW, BIN, SUB, URH)
-- 12 telas interativas
+- File formats (RAW, BIN, SUB, URH)
+- 12 interactive screens
 
-### Fase 5: Features Avançadas 📋 (Futuro)
+### Phase 5: Advanced Features 📋 (Future)
 - Spectrum waterfall
 - Protocol decoder
 - Cloud signal library
 - Multi-device support
 
-## 📊 Estatísticas do Firmware
+## 📊 Firmware Statistics
 
-- **RAM Usage**: 6.6% (21.488 / 327.680 bytes)
-- **Flash Usage**: 21.1% (276.625 / 1.310.720 bytes)
-- **Build Time**: ~8 segundos
+- **RAM Usage**: 6.6% (21,488 / 327,680 bytes)
+- **Flash Usage**: 21.1% (276,625 / 1,310,720 bytes)
+- **Build Time**: ~8 seconds
 - **Upload Speed**: 921600 baud
 
-## ⚠️ Avisos Legais
+## ⚠️ Legal Disclaimer
 
-Este dispositivo é destinado **exclusivamente** para:
-- Testes de segurança autorizados
-- Pesquisa em ambientes controlados
-- Fins educacionais
+This device is intended **exclusively** for:
+- Authorized security testing
+- Research in controlled environments
+- Educational purposes
 
-**NUNCA** use este dispositivo para:
-- Interferir em comunicações não autorizadas
-- Jamming ilegal
-- Qualquer atividade proibida por lei
+**NEVER** use this device for:
+- Interfering with unauthorized communications
+- Illegal jamming
+- Any activity prohibited by law
 
-O uso indevido pode resultar em penalidades legais. Use com responsabilidade!
+Misuse may result in legal penalties. Use responsibly!
 
-## 📝 Licença
+## 📝 License
 
-GPL-3.0 - Veja LICENSE para mais detalhes.
+GPL-3.0 - See LICENSE for details.
 
-## 🙏 Créditos
+## 🙏 Credits
 
-- **Firmware Original**: Joel Serna (@JoelSernaMoreno)
+- **Original Firmware**: Joel Serna (@JoelSernaMoreno)
 - **CC1101 Driver**: ELECHOUSE & Little Satan
-- **TUI Edition**: Desenvolvido com ❤️ para a comunidade
+- **TUI Edition**: Developed with ❤️ for the community
 
-## 📞 Suporte
+## 📞 Support
 
 - **Discord**: https://discord.gg/evilcrowrf
 - **Issues**: https://github.com/you/evilcrow-rf-tui/issues
@@ -394,6 +394,6 @@ GPL-3.0 - Veja LICENSE para mais detalhes.
 
 ---
 
-**Última Atualização**: Janeiro 2025
-**Versão Firmware**: 2.0.0-tui
-**Status**: 🚧 Fase 1 completa, Fase 2 em desenvolvimento
+**Last Update**: January 2025
+**Firmware Version**: 2.0.0-tui
+**Status**: 🚧 Phase 1 complete, Phase 2 in development
