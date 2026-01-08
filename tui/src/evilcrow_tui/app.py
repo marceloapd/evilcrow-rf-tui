@@ -1,16 +1,16 @@
 """
 Main TUI Application for Evil Crow RF V2
+Hacker-style interface
 """
 from textual.app import App, ComposeResult
-from textual.containers import Container, Horizontal, Vertical
-from textual.widgets import Header, Footer, Static, Button, Label
+from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
+from textual.widgets import Static, Label
 from textual.binding import Binding
 from .serial_client import SerialClient
-import time
 
 
 class StatusBar(Static):
-    """Status bar showing connection and device state"""
+    """Hacker-style status bar"""
 
     def __init__(self):
         super().__init__()
@@ -22,128 +22,153 @@ class StatusBar(Static):
 
     def update_status(self):
         if self.connected:
-            status_icon = "🟢"
-            status_text = "CONNECTED"
+            status = "[●] ONLINE"
         else:
-            status_icon = "🔴"
-            status_text = "DISCONNECTED"
+            status = "[○] OFFLINE"
 
-        rx_state = "RX: ⚪"
-        tx_state = "TX: ⚪"
-        jammer_state = "JAM: ⚪"
+        rx_state = "[RX:OFF]"
+        tx_state = "[TX:OFF]"
+        jam_state = "[JAM:OFF]"
 
         if self.device_status:
             if self.device_status.get('rx_active'):
-                rx_state = "RX: 🟢"
+                rx_state = "[RX:ON]"
             if self.device_status.get('tx_active'):
-                tx_state = "TX: 🟢"
+                tx_state = "[TX:ON]"
             if self.device_status.get('jammer_active'):
-                jammer_state = "JAM: 🔴"
+                jam_state = "[JAM:ACTIVE]"
 
         freq = self.device_status.get('frequency_mhz', 0.0)
+        heap = self.device_status.get('free_heap', 0)
 
         self.update(
-            f"{status_icon} {status_text}  |  "
-            f"{rx_state}  {tx_state}  {jammer_state}  |  "
-            f"Freq: {freq:.2f} MHz"
+            f" {status}  {rx_state} {tx_state} {jam_state}  "
+            f"FREQ:{freq:.2f}MHz  MEM:{heap//1024}KB"
         )
 
 
 class HomeScreen(Container):
-    """Main home screen"""
+    """Hacker-style home screen"""
 
     def compose(self) -> ComposeResult:
-        yield Static("╔══════════════════════════════════════════════════════════╗", classes="banner")
-        yield Static("║          Evil Crow RF V2 - TUI Edition                   ║", classes="banner")
-        yield Static("╚══════════════════════════════════════════════════════════╝", classes="banner")
+        yield Static("""
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                           ┃
+┃   ███████╗██╗   ██╗██╗██╗         ██████╗██████╗  ██████╗ ██╗    ██╗    ┃
+┃   ██╔════╝██║   ██║██║██║        ██╔════╝██╔══██╗██╔═══██╗██║    ██║    ┃
+┃   █████╗  ██║   ██║██║██║        ██║     ██████╔╝██║   ██║██║ █╗ ██║    ┃
+┃   ██╔══╝  ╚██╗ ██╔╝██║██║        ██║     ██╔══██╗██║   ██║██║███╗██║    ┃
+┃   ███████╗ ╚████╔╝ ██║███████╗   ╚██████╗██║  ██║╚██████╔╝╚███╔███╔╝    ┃
+┃   ╚══════╝  ╚═══╝  ╚═╝╚══════╝    ╚═════╝╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝     ┃
+┃                                                                           ┃
+┃                    RF PENETRATION TESTING FRAMEWORK                       ┃
+┃                           [ VERSION 2.0.0 ]                               ┃
+┃                                                                           ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+""", id="banner")
+
         yield Static("")
-        yield Static("Device Information:", classes="section-title")
-        yield Label(id="device-info")
+        yield Static("  ┌─ DEVICE STATUS ─────────────────────────────────────────────────────┐", classes="section")
+        yield Label(id="device-info", classes="device-info")
+        yield Static("  └──────────────────────────────────────────────────────────────────────┘", classes="section")
+
         yield Static("")
-        yield Static("Quick Actions:", classes="section-title")
-        yield Horizontal(
-            Button("Record (R)", id="btn-record", variant="primary"),
-            Button("Transmit (T)", id="btn-transmit", variant="success"),
-            Button("Jammer (J)", id="btn-jammer", variant="error"),
-            classes="button-row"
-        )
-        yield Horizontal(
-            Button("Scanner (S)", id="btn-scanner", variant="default"),
-            Button("Saved Signals (V)", id="btn-saved", variant="default"),
-            Button("Settings (E)", id="btn-settings", variant="default"),
-            classes="button-row"
-        )
+        yield Static("  ┌─ OPERATIONS ─────────────────────────────────────────────────────────┐", classes="section")
+        yield Static("  │                                                                      │", classes="section")
+        yield Static("  │  [R] RECORD     Capture RF signals and analyze protocols            │", classes="menu-item")
+        yield Static("  │  [T] TRANSMIT   Replay captured signals                             │", classes="menu-item")
+        yield Static("  │  [J] JAMMER     Block target frequency                              │", classes="menu-item")
+        yield Static("  │  [S] SCANNER    Sweep frequency range                               │", classes="menu-item")
+        yield Static("  │  [V] VAULT      Manage saved signals                                │", classes="menu-item")
+        yield Static("  │  [A] ATTACKS    Advanced RF attacks (RollJam, Bruteforce)          │", classes="menu-item")
+        yield Static("  │  [C] CONFIG     CC1101 module settings                              │", classes="menu-item")
+        yield Static("  │  [L] LOGS       View activity logs                                  │", classes="menu-item")
+        yield Static("  │                                                                      │", classes="section")
+        yield Static("  └──────────────────────────────────────────────────────────────────────┘", classes="section")
+
         yield Static("")
-        yield Static("Press 'q' to quit | 'h' for help", classes="help-text")
+        yield Static("  ┌─ KEYBOARD SHORTCUTS ─────────────────────────────────────────────────┐", classes="section")
+        yield Static("  │                                                                      │", classes="section")
+        yield Static("  │  [Q] Quit           [H] Help            [CTRL+C] Emergency Stop     │", classes="shortcuts")
+        yield Static("  │  [R] Record         [T] Transmit        [J] Jammer                  │", classes="shortcuts")
+        yield Static("  │  [S] Scanner        [V] Vault           [A] Attacks                 │", classes="shortcuts")
+        yield Static("  │  [C] Config         [L] Logs                                        │", classes="shortcuts")
+        yield Static("  │                                                                      │", classes="section")
+        yield Static("  └──────────────────────────────────────────────────────────────────────┘", classes="section")
 
 
 class EvilCrowApp(App):
-    """Evil Crow RF V2 TUI Application"""
+    """Evil Crow RF V2 TUI - Hacker Edition"""
 
     CSS = """
     Screen {
-        background: $surface;
+        background: #000000;
+        color: #00ff00;
     }
 
     StatusBar {
         dock: top;
         height: 1;
-        background: $accent;
-        color: $text;
-        content-align: center middle;
+        background: #003300;
+        color: #00ff00;
         text-style: bold;
     }
 
-    .banner {
-        color: $accent;
+    #banner {
+        color: #00ff00;
         text-align: center;
         text-style: bold;
     }
 
-    .section-title {
-        color: $primary;
-        text-style: bold;
-        margin: 1 0;
+    .section {
+        color: #00aa00;
     }
 
-    .button-row {
-        height: 3;
-        align: center middle;
-        margin: 1 0;
+    .menu-item {
+        color: #00ff00;
     }
 
-    Button {
-        margin: 0 1;
+    .menu-item:hover {
+        background: #003300;
+        color: #00ffff;
     }
 
-    .help-text {
-        color: $text-muted;
+    .shortcuts {
+        color: #00ff00;
+    }
+
+    .device-info {
+        padding: 0 2;
+        color: #00ff00;
+    }
+
+    .footer-help {
+        color: #00aa00;
         text-align: center;
-        margin: 1 0;
     }
 
-    #device-info {
-        margin: 0 4;
-        color: $text;
+    Label {
+        color: #00ff00;
     }
     """
 
     BINDINGS = [
         Binding("q", "quit", "Quit", priority=True),
-        Binding("h", "goto_home", "Home"),
-        Binding("r", "goto_record", "Record"),
-        Binding("t", "goto_transmit", "Transmit"),
-        Binding("v", "goto_saved", "Saved"),
-        Binding("j", "goto_jammer", "Jammer"),
-        Binding("s", "goto_scanner", "Scanner"),
-        Binding("e", "goto_settings", "Settings"),
-        Binding("l", "goto_logs", "Logs"),
-        Binding("ctrl+c", "emergency_stop", "Emergency Stop"),
+        Binding("h", "help", "Help"),
+        Binding("r", "record", "Record"),
+        Binding("t", "transmit", "Transmit"),
+        Binding("v", "vault", "Vault"),
+        Binding("j", "jammer", "Jammer"),
+        Binding("s", "scanner", "Scanner"),
+        Binding("a", "attacks", "Attacks"),
+        Binding("c", "config", "Config"),
+        Binding("l", "logs", "Logs"),
+        Binding("ctrl+c", "emergency_stop", "Emergency Stop", priority=True),
     ]
 
     def __init__(self, port: str = '/dev/ttyUSB0', baud: int = 115200):
         super().__init__()
-        self.title = "Evil Crow RF V2 - TUI"
+        self.title = "EVIL CROW RF V2"
         self.port = port
         self.baud = baud
         self.client: SerialClient = None
@@ -151,11 +176,9 @@ class EvilCrowApp(App):
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app"""
-        yield Header()
         self.status_bar = StatusBar()
         yield self.status_bar
         yield HomeScreen()
-        yield Footer()
 
     def on_mount(self):
         """Called when app is mounted"""
@@ -167,7 +190,7 @@ class EvilCrowApp(App):
             self.client = SerialClient(self.port, self.baud)
             if self.client.connect():
                 self.status_bar.connected = True
-                self.notify("Connected to Evil Crow RF V2", severity="information")
+                self.notify("[ CONNECTION ESTABLISHED ]", severity="information", timeout=2)
 
                 # Register event handlers
                 self.client.on_event('signal_received', self.on_signal_received)
@@ -179,10 +202,10 @@ class EvilCrowApp(App):
                 self.set_interval(2.0, self.update_device_status)
             else:
                 self.status_bar.connected = False
-                self.notify(f"Failed to connect to {self.port}", severity="error")
+                self.notify(f"[ CONNECTION FAILED: {self.port} ]", severity="error", timeout=3)
         except Exception as e:
             self.status_bar.connected = False
-            self.notify(f"Connection error: {e}", severity="error")
+            self.notify(f"[ ERROR: {e} ]", severity="error", timeout=3)
 
     def update_device_status(self):
         """Update device status from firmware"""
@@ -198,70 +221,81 @@ class EvilCrowApp(App):
         data = self.status_bar.device_status
 
         if data:
+            fw_ver = data.get('firmware_version', 'UNKNOWN')
+            freq = data.get('frequency_mhz', 0.0)
+            mod = data.get('modulation', 'UNKNOWN')
+            rx = "ACTIVE" if data.get('rx_active') else "IDLE"
+            tx = "ACTIVE" if data.get('tx_active') else "IDLE"
+            jam = "ACTIVE" if data.get('jammer_active') else "IDLE"
+            heap = data.get('free_heap', 0)
+            uptime = data.get('uptime_ms', 0) / 1000
+
             info_text = f"""
-  Firmware: {data.get('firmware_version', 'Unknown')}
-  Frequency: {data.get('frequency_mhz', 0.0):.2f} MHz
-  Modulation: {data.get('modulation', 'Unknown')}
-  RX Active: {'Yes' if data.get('rx_active') else 'No'}
-  TX Active: {'Yes' if data.get('tx_active') else 'No'}
-  Jammer Active: {'Yes' if data.get('jammer_active') else 'No'}
-  Free Heap: {data.get('free_heap', 0)} bytes
-  Uptime: {data.get('uptime_ms', 0) / 1000:.1f}s
+    FIRMWARE ........... {fw_ver}
+    FREQUENCY .......... {freq:.2f} MHz
+    MODULATION ......... {mod}
+    RX MODE ............ {rx}
+    TX MODE ............ {tx}
+    JAMMER ............. {jam}
+    FREE HEAP .......... {heap} bytes ({heap//1024} KB)
+    UPTIME ............. {uptime:.1f} seconds
 """
-            info_widget.update(info_text.strip())
+            info_widget.update(info_text)
         else:
-            info_widget.update("  No device data available")
+            info_widget.update("\n    [ NO DATA AVAILABLE ]")
 
     # Event handlers
     def on_signal_received(self, data: dict):
         """Handle signal received event"""
-        self.notify(f"Signal received: {len(data.get('raw_timings_us', []))} samples",
-                   severity="information")
+        samples = len(data.get('raw_timings_us', []))
+        self.notify(f"[ SIGNAL CAPTURED: {samples} SAMPLES ]", severity="information", timeout=2)
 
     def on_scan_result(self, data: dict):
         """Handle scan result event"""
         freq = data.get('frequency_mhz', 0.0)
         rssi = data.get('rssi_dbm', -100)
-        self.notify(f"Signal found: {freq:.2f} MHz ({rssi} dBm)",
-                   severity="information")
+        self.notify(f"[ SIGNAL DETECTED: {freq:.2f} MHz @ {rssi} dBm ]", severity="information", timeout=2)
 
     def on_spectrum_data(self, data: dict):
         """Handle spectrum data event"""
-        # Will be used by spectrum analyzer widget
         pass
 
     # Action handlers
-    def action_goto_home(self):
-        """Go to home screen"""
-        self.notify("Home screen (not yet implemented)", severity="warning")
+    def action_help(self):
+        """Show help"""
+        self.notify("[ HELP: Use keyboard shortcuts to navigate ]", timeout=2)
 
-    def action_goto_record(self):
+    def action_record(self):
         """Go to record screen"""
-        self.notify("Record screen (not yet implemented)", severity="warning")
+        self.notify("[ RECORD MODE - NOT IMPLEMENTED YET ]", severity="warning", timeout=2)
 
-    def action_goto_transmit(self):
+    def action_transmit(self):
         """Go to transmit screen"""
-        self.notify("Transmit screen (not yet implemented)", severity="warning")
+        self.notify("[ TRANSMIT MODE - NOT IMPLEMENTED YET ]", severity="warning", timeout=2)
 
-    def action_goto_saved(self):
+    def action_vault(self):
         """Go to saved signals screen"""
-        self.notify("Saved signals screen (not yet implemented)", severity="warning")
+        self.notify("[ VAULT - NOT IMPLEMENTED YET ]", severity="warning", timeout=2)
 
-    def action_goto_jammer(self):
+    def action_jammer(self):
         """Go to jammer screen"""
-        self.notify("Jammer screen (not yet implemented)", severity="warning")
+        self.notify("[ JAMMER - NOT IMPLEMENTED YET ]", severity="warning", timeout=2)
 
-    def action_goto_scanner(self):
+    def action_scanner(self):
         """Go to scanner screen"""
-        self.notify("Scanner screen (not yet implemented)", severity="warning")
+        self.notify("[ SCANNER - NOT IMPLEMENTED YET ]", severity="warning", timeout=2)
 
-    def action_goto_settings(self):
-        """Go to settings screen"""
-        self.notify("Settings screen (not yet implemented)", severity="warning")
+    def action_attacks(self):
+        """Go to attacks menu"""
+        self.notify("[ ATTACKS - NOT IMPLEMENTED YET ]", severity="warning", timeout=2)
 
-    def action_goto_logs(self):
+    def action_config(self):
+        """Go to config screen"""
+        self.notify("[ CONFIG - NOT IMPLEMENTED YET ]", severity="warning", timeout=2)
+
+    def action_logs(self):
         """Go to logs screen"""
-        self.notify("Logs screen (not yet implemented)", severity="warning")
+        self.notify("[ LOGS - NOT IMPLEMENTED YET ]", severity="warning", timeout=2)
 
     def action_emergency_stop(self):
         """Emergency stop all RF operations"""
@@ -270,7 +304,7 @@ class EvilCrowApp(App):
                 self.client.rx_stop()
             if self.status_bar.device_status.get('jammer_active'):
                 self.client.jammer_stop()
-            self.notify("Emergency stop executed", severity="error")
+            self.notify("[ EMERGENCY STOP EXECUTED ]", severity="error", timeout=2)
 
     def on_shutdown_request(self):
         """Called when app is shutting down"""
