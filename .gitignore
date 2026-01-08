@@ -54,3 +54,11 @@ presets/
 *.tmp
 *.bak
 *.log
+
+# makepkg build artifacts
+src/
+pkg/
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.pkg.tar.gz
+evilcrow-tui-git/
