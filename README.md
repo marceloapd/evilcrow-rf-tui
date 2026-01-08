@@ -14,7 +14,7 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - [x] Compilation working (RAM: 11.6%, Flash: 22.0%)
 - [x] Serial protocol tests passing
 
-### ✅ Implemented (Phase 2 - RX, TX & Jammer)
+### ✅ Implemented (Phase 2 - Complete!)
 - [x] RX Operations (signal capture with interrupt handler)
 - [x] Signal analysis (timing patterns, binary representation)
 - [x] RX commands: `rx_config`, `rx_start`, `rx_stop`
@@ -26,9 +26,10 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - [x] Jammer Operations (frequency blocking)
 - [x] Jammer commands: `jammer_start`, `jammer_stop`
 - [x] Continuous carrier transmission for jamming
-
-### 🚧 In Development (Phase 2)
-- [ ] Scanner & Spectrum Analyzer
+- [x] Scanner & Spectrum Analyzer
+- [x] Scanner command: `scan_start` (frequency range scanning)
+- [x] Spectrum command: `get_spectrum` (RSSI visualization)
+- [x] RSSI measurement and signal detection
 
 ### 📋 Planned (Phase 3 - Python TUI)
 - [ ] Python TUI with Textual
@@ -392,6 +393,77 @@ Stop RF jammer.
 {"status":"ok","cmd":"jammer_stop","id":9}
 ```
 
+#### 10. scan_start
+Scan frequency range for active signals.
+
+**Command:**
+```json
+{
+  "cmd":"scan_start",
+  "id":10,
+  "params":{
+    "module":1,
+    "start_mhz":300.0,
+    "end_mhz":928.0,
+    "step_khz":100.0,
+    "threshold_dbm":-80
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "status":"ok",
+  "cmd":"scan_start",
+  "id":10,
+  "data":{
+    "module":1,
+    "start_mhz":300.0,
+    "end_mhz":928.0,
+    "step_khz":100.0,
+    "threshold_dbm":-80,
+    "results_count":3,
+    "frequencies_mhz":[315.0,433.92,868.0],
+    "rssi_dbm":[-45,-38,-65]
+  }
+}
+```
+
+#### 11. get_spectrum
+Get RSSI spectrum data around center frequency.
+
+**Command:**
+```json
+{
+  "cmd":"get_spectrum",
+  "id":11,
+  "params":{
+    "module":1,
+    "center_mhz":433.92,
+    "span_mhz":10.0,
+    "points":50
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "status":"ok",
+  "cmd":"get_spectrum",
+  "id":11,
+  "data":{
+    "module":1,
+    "center_mhz":433.92,
+    "span_mhz":10.0,
+    "points":50,
+    "frequencies_mhz":[428.92,429.12,...,438.92],
+    "rssi_dbm":[-95,-92,-88,...,-94]
+  }
+}
+```
+
 ### Asynchronous Events
 
 The firmware sends events without request:
@@ -528,9 +600,10 @@ pio run
 ## 📊 Firmware Statistics
 
 - **RAM Usage**: 11.6% (38,152 / 327,680 bytes)
-- **Flash Usage**: 22.2% (290,509 / 1,310,720 bytes)
+- **Flash Usage**: 22.3% (292,673 / 1,310,720 bytes)
 - **Build Time**: ~4 seconds
 - **Upload Speed**: 921600 baud
+- **Total Firmware Size**: 292 KB (plenty of room for expansion)
 
 ## ⚠️ Legal Disclaimer
 
@@ -566,4 +639,4 @@ GPL-3.0 - See LICENSE for details.
 
 **Last Update**: January 2025
 **Firmware Version**: 2.0.0-tui
-**Status**: 🚧 Phase 1 complete, Phase 2 RX/TX/Jammer complete, Scanner in development
+**Status**: ✅ Phase 1 & 2 COMPLETE! All firmware features implemented. Ready for Phase 3 (Python TUI).

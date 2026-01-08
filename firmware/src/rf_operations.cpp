@@ -398,3 +398,82 @@ void stopJammer() {
 bool isJammerActive() {
     return jammerActive;
 }
+
+// Scanner & Spectrum Operations
+void scanFrequencies(int module, float start_mhz, float end_mhz, float step_khz, int threshold_dbm, int* results_count, float* frequencies, int* rssi_values) {
+    // Stop any active operations
+    if (rxActive) stopRX();
+    if (jammerActive) stopJammer();
+
+    *results_count = 0;
+
+    // Configure CC1101
+    int csPin = (module == 1) ? CC1101_1_CS : CC1101_2_CS;
+    ELECHOUSE_cc1101.setSpiPin(SPI_SCK, SPI_MISO, SPI_MOSI, csPin);
+
+    // Scan frequency range
+    float freq = start_mhz;
+    int index = 0;
+
+    while (freq <= end_mhz && index < 100) { // Limit to 100 results
+        // Set frequency
+        ELECHOUSE_cc1101.setMHZ(freq);
+        ELECHOUSE_cc1101.SetRx();
+
+        // Wait for signal to stabilize
+        delay(5);
+
+        // Read RSSI
+        int rssi = ELECHOUSE_cc1101.getRssi();
+
+        // If signal detected above threshold
+        if (rssi > threshold_dbm) {
+            frequencies[index] = freq;
+            rssi_values[index] = rssi;
+            index++;
+        }
+
+        // Move to next frequency
+        freq += (step_khz / 1000.0);
+    }
+
+    *results_count = index;
+
+    // Return to RX mode on default frequency
+    ELECHOUSE_cc1101.setMHZ(DEFAULT_FREQUENCY);
+    ELECHOUSE_cc1101.SetRx();
+}
+
+void getSpectrum(int module, float center_mhz, float span_mhz, int points, float* frequencies, int* rssi_values) {
+    // Stop any active operations
+    if (rxActive) stopRX();
+    if (jammerActive) stopJammer();
+
+    // Configure CC1101
+    int csPin = (module == 1) ? CC1101_1_CS : CC1101_2_CS;
+    ELECHOUSE_cc1101.setSpiPin(SPI_SCK, SPI_MISO, SPI_MOSI, csPin);
+
+    // Calculate frequency range
+    float start_freq = center_mhz - (span_mhz / 2.0);
+    float step = span_mhz / (points - 1);
+
+    // Sample spectrum
+    for (int i = 0; i < points; i++) {
+        float freq = start_freq + (i * step);
+
+        // Set frequency
+        ELECHOUSE_cc1101.setMHZ(freq);
+        ELECHOUSE_cc1101.SetRx();
+
+        // Wait for signal to stabilize
+        delay(2);
+
+        // Read RSSI
+        frequencies[i] = freq;
+        rssi_values[i] = ELECHOUSE_cc1101.getRssi();
+    }
+
+    // Return to RX mode on default frequency
+    ELECHOUSE_cc1101.setMHZ(DEFAULT_FREQUENCY);
+    ELECHOUSE_cc1101.SetRx();
+}

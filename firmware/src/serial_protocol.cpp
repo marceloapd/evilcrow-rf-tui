@@ -84,6 +84,8 @@ void handleRxStop(int cmd_id);
 void handleTxSend(int cmd_id, JsonObject params);
 void handleJammerStart(int cmd_id, JsonObject params);
 void handleJammerStop(int cmd_id);
+void handleScanStart(int cmd_id, JsonObject params);
+void handleGetSpectrum(int cmd_id, JsonObject params);
 
 void processSerialCommand() {
     while (Serial.available()) {
@@ -140,6 +142,12 @@ void processSerialCommand() {
                 }
                 else if (strcmp(cmd, "jammer_stop") == 0) {
                     handleJammerStop(cmd_id);
+                }
+                else if (strcmp(cmd, "scan_start") == 0) {
+                    handleScanStart(cmd_id, params);
+                }
+                else if (strcmp(cmd, "get_spectrum") == 0) {
+                    handleGetSpectrum(cmd_id, params);
                 }
                 else {
                     sendError(cmd_id, cmd, "Unknown command");
@@ -359,4 +367,95 @@ void handleJammerStop(int cmd_id) {
 
     // Send response
     sendSimpleResponse(cmd_id, "jammer_stop", "ok");
+}
+
+void handleScanStart(int cmd_id, JsonObject params) {
+    if (params.isNull()) {
+        sendError(cmd_id, "scan_start", "Missing params");
+        return;
+    }
+
+    // Extract parameters
+    int module = params["module"] | currentModule;
+    float start_mhz = params["start_mhz"] | 300.0;
+    float end_mhz = params["end_mhz"] | 928.0;
+    float step_khz = params["step_khz"] | 100.0;
+    int threshold_dbm = params["threshold_dbm"] | -80;
+
+    // Arrays for results (max 100)
+    float frequencies[100];
+    int rssi_values[100];
+    int results_count = 0;
+
+    // Perform scan
+    scanFrequencies(module, start_mhz, end_mhz, step_khz, threshold_dbm, &results_count, frequencies, rssi_values);
+
+    // Send response with results
+    StaticJsonDocument<2048> doc;
+    JsonObject data = doc.to<JsonObject>();
+    data["module"] = module;
+    data["start_mhz"] = start_mhz;
+    data["end_mhz"] = end_mhz;
+    data["step_khz"] = step_khz;
+    data["threshold_dbm"] = threshold_dbm;
+    data["results_count"] = results_count;
+
+    // Add frequency array
+    JsonArray freqArray = data.createNestedArray("frequencies_mhz");
+    for (int i = 0; i < results_count; i++) {
+        freqArray.add(frequencies[i]);
+    }
+
+    // Add RSSI array
+    JsonArray rssiArray = data.createNestedArray("rssi_dbm");
+    for (int i = 0; i < results_count; i++) {
+        rssiArray.add(rssi_values[i]);
+    }
+
+    sendResponse(cmd_id, "scan_start", "ok", data);
+}
+
+void handleGetSpectrum(int cmd_id, JsonObject params) {
+    if (params.isNull()) {
+        sendError(cmd_id, "get_spectrum", "Missing params");
+        return;
+    }
+
+    // Extract parameters
+    int module = params["module"] | currentModule;
+    float center_mhz = params["center_mhz"] | currentFrequency;
+    float span_mhz = params["span_mhz"] | 10.0;
+    int points = params["points"] | 50;
+
+    // Limit points to prevent buffer overflow
+    if (points > 100) points = 100;
+
+    // Arrays for results
+    float frequencies[100];
+    int rssi_values[100];
+
+    // Get spectrum
+    getSpectrum(module, center_mhz, span_mhz, points, frequencies, rssi_values);
+
+    // Send response with spectrum data
+    StaticJsonDocument<2048> doc;
+    JsonObject data = doc.to<JsonObject>();
+    data["module"] = module;
+    data["center_mhz"] = center_mhz;
+    data["span_mhz"] = span_mhz;
+    data["points"] = points;
+
+    // Add frequency array
+    JsonArray freqArray = data.createNestedArray("frequencies_mhz");
+    for (int i = 0; i < points; i++) {
+        freqArray.add(frequencies[i]);
+    }
+
+    // Add RSSI array
+    JsonArray rssiArray = data.createNestedArray("rssi_dbm");
+    for (int i = 0; i < points; i++) {
+        rssiArray.add(rssi_values[i]);
+    }
+
+    sendResponse(cmd_id, "get_spectrum", "ok", data);
 }

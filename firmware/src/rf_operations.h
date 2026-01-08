@@ -28,4 +28,8 @@ int getSampleCount();
 unsigned long* getRawSamples();
 unsigned long* getSmoothedSamples();
 
+// Scanner & Spectrum Operations
+void scanFrequencies(int module, float start_mhz, float end_mhz, float step_khz, int threshold_dbm, int* results_count, float* frequencies, int* rssi_values);
+void getSpectrum(int module, float center_mhz, float span_mhz, int points, float* frequencies, int* rssi_values);
+
 #endif // RF_OPERATIONS_H
