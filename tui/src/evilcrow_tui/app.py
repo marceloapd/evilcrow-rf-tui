@@ -4,7 +4,7 @@ Hacker-style interface
 """
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal, Vertical, VerticalScroll
-from textual.widgets import Static, Label, Button
+from textual.widgets import Static, Label, Button, ListView, ListItem
 from textual.binding import Binding
 from .serial_client import SerialClient
 
@@ -66,15 +66,15 @@ class HomeScreen(Container):
         yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
         yield Static("┌─ OPERATIONS (Use ↑↓ arrows or hotkeys) ────────────────────┐", classes="section")
-        with Vertical(id="menu-container"):
-            yield Button("[R] RECORD      • Capture RF signals", id="btn-record")
-            yield Button("[T] TRANSMIT    • Replay captured signals", id="btn-transmit")
-            yield Button("[J] JAMMER      • Block target frequency", id="btn-jammer")
-            yield Button("[S] SCANNER     • Sweep frequency range", id="btn-scanner")
-            yield Button("[V] VAULT       • Manage saved signals", id="btn-vault")
-            yield Button("[A] ATTACKS     • RollJam, Bruteforce, Rollback", id="btn-attacks")
-            yield Button("[C] CONFIG      • CC1101 settings", id="btn-config")
-            yield Button("[L] LOGS        • View activity logs", id="btn-logs")
+        with ListView(id="menu-list"):
+            yield ListItem(Static("[R] RECORD      • Capture RF signals"), id="item-record")
+            yield ListItem(Static("[T] TRANSMIT    • Replay captured signals"), id="item-transmit")
+            yield ListItem(Static("[J] JAMMER      • Block target frequency"), id="item-jammer")
+            yield ListItem(Static("[S] SCANNER     • Sweep frequency range"), id="item-scanner")
+            yield ListItem(Static("[V] VAULT       • Manage saved signals"), id="item-vault")
+            yield ListItem(Static("[A] ATTACKS     • RollJam, Bruteforce, Rollback"), id="item-attacks")
+            yield ListItem(Static("[C] CONFIG      • CC1101 settings"), id="item-config")
+            yield ListItem(Static("[L] LOGS        • View activity logs"), id="item-logs")
         yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
         yield Static("  [Q] Quit  [H] Help  [CTRL+C] Emergency Stop", classes="footer-help")
@@ -107,24 +107,30 @@ class EvilCrowApp(App):
         color: #00aa00;
     }
 
-    #menu-container {
-        height: auto;
+    #menu-list {
+        height: 8;
+        border: none;
+        background: #000000;
         padding: 0 1;
     }
 
-    Button {
-        width: 100%;
+    #menu-list > ListItem {
         height: 1;
-        min-height: 1;
-        background: transparent;
+        background: #000000;
         color: #00ff00;
-        border: none;
-        text-align: left;
         padding: 0;
-        margin: 0;
     }
 
-    Button:hover, Button:focus {
+    #menu-list > ListItem > Static {
+        background: #000000;
+        color: #00ff00;
+    }
+
+    #menu-list > ListItem:hover, #menu-list > .list--highlight {
+        background: #003300 !important;
+    }
+
+    #menu-list > ListItem:hover > Static, #menu-list > .list--highlight > Static {
         background: #003300;
         color: #00ffff;
         text-style: bold;
@@ -174,8 +180,8 @@ class EvilCrowApp(App):
 
     def on_mount(self):
         """Called when app is mounted"""
-        # Focar primeiro botão para navegação funcionar
-        self.set_timer(0.1, lambda: self.query_one("#btn-record").focus())
+        # Focar lista para navegação funcionar
+        self.set_timer(0.1, lambda: self.query_one("#menu-list").focus())
         # Conectar em background para não travar a UI
         self.set_timer(0.5, self.connect_device)
 
@@ -294,25 +300,25 @@ class EvilCrowApp(App):
                 self.client.jammer_stop()
             self.notify("[ EMERGENCY STOP EXECUTED ]", severity="error", timeout=2)
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Handle button clicks"""
-        button_id = event.button.id
+    def on_list_view_selected(self, event: ListView.Selected) -> None:
+        """Handle list item selection (Enter key or click)"""
+        item_id = event.item.id
 
-        if button_id == "btn-record":
+        if item_id == "item-record":
             self.action_record()
-        elif button_id == "btn-transmit":
+        elif item_id == "item-transmit":
             self.action_transmit()
-        elif button_id == "btn-jammer":
+        elif item_id == "item-jammer":
             self.action_jammer()
-        elif button_id == "btn-scanner":
+        elif item_id == "item-scanner":
             self.action_scanner()
-        elif button_id == "btn-vault":
+        elif item_id == "item-vault":
             self.action_vault()
-        elif button_id == "btn-attacks":
+        elif item_id == "item-attacks":
             self.action_attacks()
-        elif button_id == "btn-config":
+        elif item_id == "item-config":
             self.action_config()
-        elif button_id == "btn-logs":
+        elif item_id == "item-logs":
             self.action_logs()
 
     def on_shutdown_request(self):
