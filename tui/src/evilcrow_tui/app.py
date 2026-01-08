@@ -67,17 +67,21 @@ class HomeScreen(Container):
 
         yield Static("┌─ OPERATIONS (Use ↑↓ arrows or hotkeys) ────────────────────┐", classes="section")
         with ListView(id="menu-list"):
-            yield ListItem(Label("[R] RECORD      • Capture RF signals"), id="item-record")
-            yield ListItem(Label("[T] TRANSMIT    • Replay captured signals"), id="item-transmit")
-            yield ListItem(Label("[J] JAMMER      • Block target frequency"), id="item-jammer")
-            yield ListItem(Label("[S] SCANNER     • Sweep frequency range"), id="item-scanner")
-            yield ListItem(Label("[V] VAULT       • Manage saved signals"), id="item-vault")
-            yield ListItem(Label("[A] ATTACKS     • RollJam, Bruteforce, Rollback"), id="item-attacks")
-            yield ListItem(Label("[C] CONFIG      • CC1101 settings"), id="item-config")
-            yield ListItem(Label("[L] LOGS        • View activity logs"), id="item-logs")
+            yield ListItem(Label("RECORD      • Capture RF signals"), id="item-record")
+            yield ListItem(Label("TRANSMIT    • Replay captured signals"), id="item-transmit")
+            yield ListItem(Label("JAMMER      • Block target frequency"), id="item-jammer")
+            yield ListItem(Label("SCANNER     • Sweep frequency range"), id="item-scanner")
+            yield ListItem(Label("VAULT       • Manage saved signals"), id="item-vault")
+            yield ListItem(Label("ATTACKS     • RollJam, Bruteforce, Rollback"), id="item-attacks")
+            yield ListItem(Label("CONFIG      • CC1101 settings"), id="item-config")
+            yield ListItem(Label("LOGS        • View activity logs"), id="item-logs")
         yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
-        yield Static("  [Q] Quit  [H] Help  [CTRL+C] Emergency Stop", classes="footer-help")
+        yield Static("")
+        yield Static("┌─ KEYBOARD SHORTCUTS ────────────────────────────────────────┐", classes="section")
+        yield Static("│ [R]ecord  [T]ransmit  [J]ammer  [S]canner  [V]ault         │", classes="shortcuts")
+        yield Static("│ [A]ttacks  [C]onfig  [L]ogs  [Q]uit  [H]elp  [^C]Emergency │", classes="shortcuts")
+        yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
 
 class EvilCrowApp(App):
@@ -134,6 +138,10 @@ class EvilCrowApp(App):
         background: #003300;
         color: #00ffff;
         text-style: bold;
+    }
+
+    .shortcuts {
+        color: #00ff00;
     }
 
     .device-info {
