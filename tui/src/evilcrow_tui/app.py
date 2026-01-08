@@ -18,7 +18,7 @@ class StatusBar(Static):
         self.device_status = {}
 
     def on_mount(self):
-        self.set_interval(0.5, self.update_status)
+        self.set_interval(1.0, self.update_status)  # Reduzido de 0.5s para 1s
 
     def update_status(self):
         if self.connected:
@@ -67,14 +67,14 @@ class HomeScreen(Container):
 
         yield Static("┌─ OPERATIONS (Use ↑↓ arrows or hotkeys) ────────────────────┐", classes="section")
         with Vertical(id="menu-container"):
-            yield Button("[R] RECORD      • Capture RF signals", id="btn-record", variant="default")
-            yield Button("[T] TRANSMIT    • Replay captured signals", id="btn-transmit", variant="default")
-            yield Button("[J] JAMMER      • Block target frequency", id="btn-jammer", variant="default")
-            yield Button("[S] SCANNER     • Sweep frequency range", id="btn-scanner", variant="default")
-            yield Button("[V] VAULT       • Manage saved signals", id="btn-vault", variant="default")
-            yield Button("[A] ATTACKS     • RollJam, Bruteforce, Rollback", id="btn-attacks", variant="default")
-            yield Button("[C] CONFIG      • CC1101 settings", id="btn-config", variant="default")
-            yield Button("[L] LOGS        • View activity logs", id="btn-logs", variant="default")
+            yield Button("[R] RECORD      • Capture RF signals", id="btn-record")
+            yield Button("[T] TRANSMIT    • Replay captured signals", id="btn-transmit")
+            yield Button("[J] JAMMER      • Block target frequency", id="btn-jammer")
+            yield Button("[S] SCANNER     • Sweep frequency range", id="btn-scanner")
+            yield Button("[V] VAULT       • Manage saved signals", id="btn-vault")
+            yield Button("[A] ATTACKS     • RollJam, Bruteforce, Rollback", id="btn-attacks")
+            yield Button("[C] CONFIG      • CC1101 settings", id="btn-config")
+            yield Button("[L] LOGS        • View activity logs", id="btn-logs")
         yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
         yield Static("  [Q] Quit  [H] Help  [CTRL+C] Emergency Stop", classes="footer-help")
@@ -112,23 +112,19 @@ class EvilCrowApp(App):
         padding: 0 1;
     }
 
-    #menu-container Button {
+    Button {
         width: 100%;
         height: 1;
         min-height: 1;
-        background: #000000;
+        background: transparent;
         color: #00ff00;
         border: none;
         text-align: left;
-        padding: 0 1;
+        padding: 0;
+        margin: 0;
     }
 
-    #menu-container Button:hover {
-        background: #003300;
-        color: #00ffff;
-    }
-
-    #menu-container Button:focus {
+    Button:hover, Button:focus {
         background: #003300;
         color: #00ffff;
         text-style: bold;
@@ -178,7 +174,10 @@ class EvilCrowApp(App):
 
     def on_mount(self):
         """Called when app is mounted"""
-        self.connect_device()
+        # Focar primeiro botão para navegação funcionar
+        self.set_timer(0.1, lambda: self.query_one("#btn-record").focus())
+        # Conectar em background para não travar a UI
+        self.set_timer(0.5, self.connect_device)
 
     def connect_device(self):
         """Connect to Evil Crow device"""
@@ -195,7 +194,7 @@ class EvilCrowApp(App):
 
                 # Get initial status
                 self.update_device_status()
-                self.set_interval(2.0, self.update_device_status)
+                self.set_interval(5.0, self.update_device_status)  # Reduzido frequência
             else:
                 self.status_bar.connected = False
                 self.notify(f"[ CONNECTION FAILED: {self.port} ]", severity="error", timeout=3)

@@ -26,8 +26,8 @@ class SerialClient:
     def connect(self) -> bool:
         """Connect to device"""
         try:
-            self.ser = serial.Serial(self.port, self.baud, timeout=1)
-            time.sleep(2)  # Wait for device to be ready
+            self.ser = serial.Serial(self.port, self.baud, timeout=0.5)
+            time.sleep(0.5)  # Wait for device to be ready (reduzido de 2s)
             self.ser.reset_input_buffer()
 
             # Start read thread
