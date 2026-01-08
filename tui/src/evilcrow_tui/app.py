@@ -79,8 +79,8 @@ class HomeScreen(Container):
 
         yield Static("")
         yield Static("┌─ KEYBOARD SHORTCUTS ────────────────────────────────────────┐", classes="section")
-        yield Static("│ [R]ecord  [T]ransmit  [J]ammer  [S]canner  [V]ault         │", classes="shortcuts")
-        yield Static("│ [A]ttacks  [C]onfig  [L]ogs  [Q]uit  [H]elp  [^C]Emergency │", classes="shortcuts")
+        yield Static("│ R:Record  T:Transmit  J:Jammer  S:Scanner  V:Vault         │", classes="shortcuts")
+        yield Static("│ A:Attacks  C:Config  L:Logs  Q:Quit  H:Help  ^C:Emergency  │", classes="shortcuts")
         yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
 
