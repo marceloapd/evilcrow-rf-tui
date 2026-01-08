@@ -84,7 +84,7 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 
 ```bash
 # Clone repository
-git clone https://github.com/you/evilcrow-rf-tui.git
+git clone https://github.com/marceloapd/evilcrow-rf-tui.git
 cd evilcrow-rf-tui
 
 # Build and install package
@@ -110,7 +110,7 @@ See [INSTALL_ARCH.md](INSTALL_ARCH.md) for detailed Arch Linux instructions.
 
 ```bash
 # Clone repository
-git clone https://github.com/you/evilcrow-rf-tui.git
+git clone https://github.com/marceloapd/evilcrow-rf-tui.git
 cd evilcrow-rf-tui
 
 # Install TUI
@@ -180,7 +180,7 @@ sudo udevadm trigger
 
 ```bash
 # Clone repository
-git clone https://github.com/you/evilcrow-rf-tui.git
+git clone https://github.com/marceloapd/evilcrow-rf-tui.git
 cd evilcrow-rf-tui/firmware
 
 # Compile
@@ -746,7 +746,7 @@ GPL-3.0 - See LICENSE for details.
 ## 📞 Support
 
 - **Discord**: https://discord.gg/evilcrowrf
-- **Issues**: https://github.com/you/evilcrow-rf-tui/issues
+- **Issues**: https://github.com/marceloapd/evilcrow-rf-tui/issues
 - **Original Repo**: https://github.com/joelsernamoreno/EvilCrowRF-V2
 
 ---

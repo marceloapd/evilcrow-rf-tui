@@ -4,7 +4,7 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/you/evilcrow-rf-tui.git
+git clone https://github.com/marceloapd/evilcrow-rf-tui.git
 cd evilcrow-rf-tui
 
 # Build package
