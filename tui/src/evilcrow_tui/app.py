@@ -67,14 +67,14 @@ class HomeScreen(Container):
 
         yield Static("┌─ OPERATIONS (Use ↑↓ arrows or hotkeys) ────────────────────┐", classes="section")
         with ListView(id="menu-list"):
-            yield ListItem(Static("[R] RECORD      • Capture RF signals"), id="item-record")
-            yield ListItem(Static("[T] TRANSMIT    • Replay captured signals"), id="item-transmit")
-            yield ListItem(Static("[J] JAMMER      • Block target frequency"), id="item-jammer")
-            yield ListItem(Static("[S] SCANNER     • Sweep frequency range"), id="item-scanner")
-            yield ListItem(Static("[V] VAULT       • Manage saved signals"), id="item-vault")
-            yield ListItem(Static("[A] ATTACKS     • RollJam, Bruteforce, Rollback"), id="item-attacks")
-            yield ListItem(Static("[C] CONFIG      • CC1101 settings"), id="item-config")
-            yield ListItem(Static("[L] LOGS        • View activity logs"), id="item-logs")
+            yield ListItem(Label("[R] RECORD      • Capture RF signals"), id="item-record")
+            yield ListItem(Label("[T] TRANSMIT    • Replay captured signals"), id="item-transmit")
+            yield ListItem(Label("[J] JAMMER      • Block target frequency"), id="item-jammer")
+            yield ListItem(Label("[S] SCANNER     • Sweep frequency range"), id="item-scanner")
+            yield ListItem(Label("[V] VAULT       • Manage saved signals"), id="item-vault")
+            yield ListItem(Label("[A] ATTACKS     • RollJam, Bruteforce, Rollback"), id="item-attacks")
+            yield ListItem(Label("[C] CONFIG      • CC1101 settings"), id="item-config")
+            yield ListItem(Label("[L] LOGS        • View activity logs"), id="item-logs")
         yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
         yield Static("  [Q] Quit  [H] Help  [CTRL+C] Emergency Stop", classes="footer-help")
@@ -121,7 +121,7 @@ class EvilCrowApp(App):
         padding: 0;
     }
 
-    #menu-list > ListItem > Static {
+    #menu-list > ListItem > Label {
         background: #000000;
         color: #00ff00;
     }
@@ -130,7 +130,7 @@ class EvilCrowApp(App):
         background: #003300 !important;
     }
 
-    #menu-list > ListItem:hover > Static, #menu-list > .list--highlight > Static {
+    #menu-list > ListItem:hover > Label, #menu-list > .list--highlight > Label {
         background: #003300;
         color: #00ffff;
         text-style: bold;
