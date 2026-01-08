@@ -31,13 +31,15 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - [x] Spectrum command: `get_spectrum` (RSSI visualization)
 - [x] RSSI measurement and signal detection
 
-### 📋 Planned (Phase 3 - Python TUI)
-- [ ] Python TUI with Textual
-- [ ] File formats (RAW, BIN, SUB, URH)
-- [ ] Storage manager (~/.evilcrow/)
-- [ ] Serial client with async events
-- [ ] 12 interactive screens
-- [ ] Visual spectrum analyzer
+### 🚧 In Progress (Phase 3 - Python TUI)
+- [x] Python project structure (pyproject.toml, venv)
+- [x] Serial client with async events (threading, callbacks, queue)
+- [x] Storage manager (~/.evilcrow/ with signals, logs, presets)
+- [x] File formats (RAW, BIN, SUB, URH with full conversions)
+- [x] Main TUI app with Textual (app.py, status bar, navigation)
+- [ ] Screen implementations (12 screens: home, record, transmit, jammer, etc.)
+- [ ] Visual widgets (spectrum analyzer, signal display)
+- [ ] Integration testing with real device
 
 ### 📋 Planned (Phase 4 - Basic Attacks)
 - [ ] Bruteforce attack (DIP switches, fixed codes)
@@ -162,6 +164,58 @@ echo '{"cmd":"ping","id":1}' > /dev/ttyUSB0
 echo '{"cmd":"get_status","id":2}' > /dev/ttyUSB0
 ```
 
+## 🎨 Running the TUI (Phase 3 - In Development)
+
+### Install TUI Dependencies
+
+```bash
+cd tui
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Linux/macOS
+# or: venv\Scripts\activate  # On Windows
+
+# Install in development mode
+pip install -e .
+```
+
+### Run the TUI
+
+```bash
+# Make sure device is connected to /dev/ttyUSB0
+source venv/bin/activate
+evilcrow
+
+# Or use the test script
+cd ..
+./scripts/test_tui.sh
+```
+
+### Current TUI Features (Implemented)
+
+- Connection to Evil Crow device via serial
+- Real-time status bar showing RX/TX/Jammer states
+- Device information display (firmware, frequency, heap, uptime)
+- Event handling for signals and scans
+- Emergency stop (Ctrl+C) for all RF operations
+- Navigation framework (keyboard shortcuts ready)
+- Storage manager with automatic directory creation (~/.evilcrow/)
+- Signal format support (RAW JSON, BIN, SUB Flipper Zero, URH)
+
+### TUI Keyboard Shortcuts
+
+- `q`: Quit application
+- `h`: Home screen
+- `r`: Record screen (not yet implemented)
+- `t`: Transmit screen (not yet implemented)
+- `v`: Saved signals screen (not yet implemented)
+- `j`: Jammer screen (not yet implemented)
+- `s`: Scanner screen (not yet implemented)
+- `e`: Settings screen (not yet implemented)
+- `l`: Logs screen (not yet implemented)
+- `Ctrl+C`: Emergency stop (stops all RF operations)
+
 ## 📁 Current Project Structure
 
 ```
@@ -178,7 +232,17 @@ evilcrow-rf-tui/
 │   └── .gitignore           ✅ Configured
 │
 ├── tui/                   # Python TUI
-│   └── (not yet implemented)
+│   ├── src/evilcrow_tui/
+│   │   ├── __init__.py           ✅ Implemented
+│   │   ├── __main__.py           ✅ Implemented
+│   │   ├── app.py                ✅ Implemented
+│   │   ├── serial_client.py      ✅ Implemented
+│   │   ├── storage.py            ✅ Implemented
+│   │   ├── signal_formats.py     ✅ Implemented
+│   │   ├── widgets/              📋 Pending
+│   │   └── screens/              📋 Pending
+│   ├── pyproject.toml            ✅ Configured
+│   └── venv/                     ✅ Created
 │
 ├── scripts/
 │   ├── flash_firmware.sh  ✅ Implemented
