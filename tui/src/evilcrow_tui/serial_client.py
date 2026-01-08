@@ -48,6 +48,10 @@ class SerialClient:
         if self.ser:
             self.ser.close()
 
+    def is_connected(self) -> bool:
+        """Check if device is still connected"""
+        return self.running and self.ser is not None and self.ser.is_open
+
     def _read_loop(self):
         """Background thread to read serial data"""
         while self.running and self.ser:
@@ -56,6 +60,17 @@ class SerialClient:
                     line = self.ser.readline().decode('utf-8').strip()
                     if line:
                         self._handle_message(line)
+            except (serial.SerialException, OSError) as e:
+                # Device disconnected
+                print(f"Device disconnected: {e}")
+                self.running = False
+                if self.ser:
+                    try:
+                        self.ser.close()
+                    except:
+                        pass
+                self.ser = None
+                break
             except Exception as e:
                 print(f"Read error: {e}")
                 time.sleep(0.1)
@@ -115,6 +130,17 @@ class SerialClient:
         # Send command
         try:
             self.ser.write((json.dumps(command) + '\n').encode('utf-8'))
+        except (serial.SerialException, OSError) as e:
+            # Device disconnected during send
+            print(f"Device disconnected during send: {e}")
+            self.running = False
+            if self.ser:
+                try:
+                    self.ser.close()
+                except:
+                    pass
+            self.ser = None
+            return None
         except Exception as e:
             print(f"Send error: {e}")
             return None
