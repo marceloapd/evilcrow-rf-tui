@@ -52,49 +52,31 @@ class HomeScreen(Container):
 
     def compose(self) -> ComposeResult:
         yield Static("""
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                                                                           ┃
-┃   ███████╗██╗   ██╗██╗██╗         ██████╗██████╗  ██████╗ ██╗    ██╗    ┃
-┃   ██╔════╝██║   ██║██║██║        ██╔════╝██╔══██╗██╔═══██╗██║    ██║    ┃
-┃   █████╗  ██║   ██║██║██║        ██║     ██████╔╝██║   ██║██║ █╗ ██║    ┃
-┃   ██╔══╝  ╚██╗ ██╔╝██║██║        ██║     ██╔══██╗██║   ██║██║███╗██║    ┃
-┃   ███████╗ ╚████╔╝ ██║███████╗   ╚██████╗██║  ██║╚██████╔╝╚███╔███╔╝    ┃
-┃   ╚══════╝  ╚═══╝  ╚═╝╚══════╝    ╚═════╝╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝     ┃
-┃                                                                           ┃
-┃                    RF PENETRATION TESTING FRAMEWORK                       ┃
-┃                           [ VERSION 2.0.0 ]                               ┃
-┃                                                                           ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  ███████╗██╗   ██╗██╗██╗      ██████╗██████╗  ██████╗ ██╗    ██╗
+  ██╔════╝██║   ██║██║██║     ██╔════╝██╔══██╗██╔═══██╗██║    ██║
+  █████╗  ██║   ██║██║██║     ██║     ██████╔╝██║   ██║██║ █╗ ██║
+  ██╔══╝  ╚██╗ ██╔╝██║██║     ██║     ██╔══██╗██║   ██║██║███╗██║
+  ███████╗ ╚████╔╝ ██║███████╗╚██████╗██║  ██║╚██████╔╝╚███╔███╔╝
+  ╚══════╝  ╚═══╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝
+            RF PENETRATION TESTING FRAMEWORK  [ v2.0 ]
 """, id="banner")
 
-        yield Static("")
-        yield Static("  ┌─ DEVICE STATUS ─────────────────────────────────────────────────────┐", classes="section")
+        yield Static("┌─ DEVICE ────────────────────────────────────────────────────┐", classes="section")
         yield Label(id="device-info", classes="device-info")
-        yield Static("  └──────────────────────────────────────────────────────────────────────┘", classes="section")
+        yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
-        yield Static("")
-        yield Static("  ┌─ OPERATIONS ─────────────────────────────────────────────────────────┐", classes="section")
-        yield Static("  │                                                                      │", classes="section")
-        yield Static("  │  [R] RECORD     Capture RF signals and analyze protocols            │", classes="menu-item")
-        yield Static("  │  [T] TRANSMIT   Replay captured signals                             │", classes="menu-item")
-        yield Static("  │  [J] JAMMER     Block target frequency                              │", classes="menu-item")
-        yield Static("  │  [S] SCANNER    Sweep frequency range                               │", classes="menu-item")
-        yield Static("  │  [V] VAULT      Manage saved signals                                │", classes="menu-item")
-        yield Static("  │  [A] ATTACKS    Advanced RF attacks (RollJam, Bruteforce)          │", classes="menu-item")
-        yield Static("  │  [C] CONFIG     CC1101 module settings                              │", classes="menu-item")
-        yield Static("  │  [L] LOGS       View activity logs                                  │", classes="menu-item")
-        yield Static("  │                                                                      │", classes="section")
-        yield Static("  └──────────────────────────────────────────────────────────────────────┘", classes="section")
+        yield Static("┌─ OPERATIONS ────────────────────────────────────────────────┐", classes="section")
+        yield Static("│ [R] RECORD    Capture RF signals                           │", classes="menu-item")
+        yield Static("│ [T] TRANSMIT  Replay captured signals                      │", classes="menu-item")
+        yield Static("│ [J] JAMMER    Block target frequency                       │", classes="menu-item")
+        yield Static("│ [S] SCANNER   Sweep frequency range                        │", classes="menu-item")
+        yield Static("│ [V] VAULT     Manage saved signals                         │", classes="menu-item")
+        yield Static("│ [A] ATTACKS   RollJam, Bruteforce, Rollback                │", classes="menu-item")
+        yield Static("│ [C] CONFIG    CC1101 settings                              │", classes="menu-item")
+        yield Static("│ [L] LOGS      View activity logs                           │", classes="menu-item")
+        yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
-        yield Static("")
-        yield Static("  ┌─ KEYBOARD SHORTCUTS ─────────────────────────────────────────────────┐", classes="section")
-        yield Static("  │                                                                      │", classes="section")
-        yield Static("  │  [Q] Quit           [H] Help            [CTRL+C] Emergency Stop     │", classes="shortcuts")
-        yield Static("  │  [R] Record         [T] Transmit        [J] Jammer                  │", classes="shortcuts")
-        yield Static("  │  [S] Scanner        [V] Vault           [A] Attacks                 │", classes="shortcuts")
-        yield Static("  │  [C] Config         [L] Logs                                        │", classes="shortcuts")
-        yield Static("  │                                                                      │", classes="section")
-        yield Static("  └──────────────────────────────────────────────────────────────────────┘", classes="section")
+        yield Static("  [Q] Quit  [H] Help  [CTRL+C] Emergency Stop", classes="footer-help")
 
 
 class EvilCrowApp(App):
@@ -133,12 +115,7 @@ class EvilCrowApp(App):
         color: #00ffff;
     }
 
-    .shortcuts {
-        color: #00ff00;
-    }
-
     .device-info {
-        padding: 0 2;
         color: #00ff00;
     }
 
@@ -230,19 +207,12 @@ class EvilCrowApp(App):
             heap = data.get('free_heap', 0)
             uptime = data.get('uptime_ms', 0) / 1000
 
-            info_text = f"""
-    FIRMWARE ........... {fw_ver}
-    FREQUENCY .......... {freq:.2f} MHz
-    MODULATION ......... {mod}
-    RX MODE ............ {rx}
-    TX MODE ............ {tx}
-    JAMMER ............. {jam}
-    FREE HEAP .......... {heap} bytes ({heap//1024} KB)
-    UPTIME ............. {uptime:.1f} seconds
-"""
+            info_text = f"""│ FIRMWARE ....... {fw_ver}  │  FREQUENCY .... {freq:.2f} MHz
+│ MODULATION ..... {mod}     │  FREE HEAP .... {heap//1024} KB
+│ RX MODE ........ {rx}      │  UPTIME ....... {uptime:.0f}s"""
             info_widget.update(info_text)
         else:
-            info_widget.update("\n    [ NO DATA AVAILABLE ]")
+            info_widget.update("│ [ NO DATA AVAILABLE ]")
 
     # Event handlers
     def on_signal_received(self, data: dict):
