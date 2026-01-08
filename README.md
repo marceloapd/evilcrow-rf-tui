@@ -78,7 +78,75 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - **Python 3.8+** (for TUI - not yet implemented)
 - **Linux** (tested on Arch Linux)
 
-## 🔧 Installation
+## 🔧 Quick Installation
+
+### Arch Linux (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/you/evilcrow-rf-tui.git
+cd evilcrow-rf-tui
+
+# Build and install package
+makepkg -si
+
+# Add user to group
+sudo usermod -a -G uucp $USER
+
+# Reload udev rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+
+# Logout/login, then flash firmware
+cd /usr/share/evilcrow-tui-git/firmware
+pio run --target upload
+
+# Run TUI
+evilcrow
+```
+
+See [INSTALL_ARCH.md](INSTALL_ARCH.md) for detailed Arch Linux instructions.
+
+### Other Linux (pip/pipx)
+
+```bash
+# Clone repository
+git clone https://github.com/you/evilcrow-rf-tui.git
+cd evilcrow-rf-tui
+
+# Install TUI
+./install.sh
+
+# Flash firmware
+cd firmware
+pio run --target upload
+
+# Run TUI
+evilcrow
+```
+
+### Alternative: Install TUI with pip/pipx
+
+```bash
+cd evilcrow-rf-tui/tui
+
+# Option 1: pipx (recommended - isolated environment)
+pipx install .
+
+# Option 2: pip user install
+pip install --user .
+
+# Run
+evilcrow
+```
+
+### Uninstall
+
+```bash
+cd evilcrow-rf-tui
+./uninstall.sh
+```
+
+## 🔧 Manual Installation
 
 ### 1. Install PlatformIO
 
@@ -166,31 +234,13 @@ echo '{"cmd":"get_status","id":2}' > /dev/ttyUSB0
 
 ## 🎨 Running the TUI (Phase 3 - In Development)
 
-### Install TUI Dependencies
+After installation with `./install.sh` or `pipx install .`, just run:
 
 ```bash
-cd tui
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Linux/macOS
-# or: venv\Scripts\activate  # On Windows
-
-# Install in development mode
-pip install -e .
-```
-
-### Run the TUI
-
-```bash
-# Make sure device is connected to /dev/ttyUSB0
-source venv/bin/activate
 evilcrow
-
-# Or use the test script
-cd ..
-./scripts/test_tui.sh
 ```
+
+Make sure the device is connected to `/dev/ttyUSB0` first!
 
 ### Current TUI Features (Implemented)
 
