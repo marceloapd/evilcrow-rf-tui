@@ -3,8 +3,8 @@ Main TUI Application for Evil Crow RF V2
 Hacker-style interface
 """
 from textual.app import App, ComposeResult
-from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
-from textual.widgets import Static, Label
+from textual.containers import Container, Horizontal, Vertical, VerticalScroll
+from textual.widgets import Static, Label, Button
 from textual.binding import Binding
 from .serial_client import SerialClient
 
@@ -65,15 +65,16 @@ class HomeScreen(Container):
         yield Label(id="device-info", classes="device-info")
         yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
-        yield Static("┌─ OPERATIONS ────────────────────────────────────────────────┐", classes="section")
-        yield Static("│  [R] RECORD      Capture RF signals                        │", classes="menu-item")
-        yield Static("│  [T] TRANSMIT    Replay captured signals                   │", classes="menu-item")
-        yield Static("│  [J] JAMMER      Block target frequency                    │", classes="menu-item")
-        yield Static("│  [S] SCANNER     Sweep frequency range                     │", classes="menu-item")
-        yield Static("│  [V] VAULT       Manage saved signals                      │", classes="menu-item")
-        yield Static("│  [A] ATTACKS     RollJam, Bruteforce, Rollback             │", classes="menu-item")
-        yield Static("│  [C] CONFIG      CC1101 settings                           │", classes="menu-item")
-        yield Static("│  [L] LOGS        View activity logs                        │", classes="menu-item")
+        yield Static("┌─ OPERATIONS (Use ↑↓ arrows or hotkeys) ────────────────────┐", classes="section")
+        with Vertical(id="menu-container"):
+            yield Button("[R] RECORD      • Capture RF signals", id="btn-record", variant="default")
+            yield Button("[T] TRANSMIT    • Replay captured signals", id="btn-transmit", variant="default")
+            yield Button("[J] JAMMER      • Block target frequency", id="btn-jammer", variant="default")
+            yield Button("[S] SCANNER     • Sweep frequency range", id="btn-scanner", variant="default")
+            yield Button("[V] VAULT       • Manage saved signals", id="btn-vault", variant="default")
+            yield Button("[A] ATTACKS     • RollJam, Bruteforce, Rollback", id="btn-attacks", variant="default")
+            yield Button("[C] CONFIG      • CC1101 settings", id="btn-config", variant="default")
+            yield Button("[L] LOGS        • View activity logs", id="btn-logs", variant="default")
         yield Static("└──────────────────────────────────────────────────────────────┘", classes="section")
 
         yield Static("  [Q] Quit  [H] Help  [CTRL+C] Emergency Stop", classes="footer-help")
@@ -106,13 +107,31 @@ class EvilCrowApp(App):
         color: #00aa00;
     }
 
-    .menu-item {
-        color: #00ff00;
+    #menu-container {
+        height: auto;
+        padding: 0 1;
     }
 
-    .menu-item:hover {
+    #menu-container Button {
+        width: 100%;
+        height: 1;
+        min-height: 1;
+        background: #000000;
+        color: #00ff00;
+        border: none;
+        text-align: left;
+        padding: 0 1;
+    }
+
+    #menu-container Button:hover {
         background: #003300;
         color: #00ffff;
+    }
+
+    #menu-container Button:focus {
+        background: #003300;
+        color: #00ffff;
+        text-style: bold;
     }
 
     .device-info {
@@ -275,6 +294,27 @@ class EvilCrowApp(App):
             if self.status_bar.device_status.get('jammer_active'):
                 self.client.jammer_stop()
             self.notify("[ EMERGENCY STOP EXECUTED ]", severity="error", timeout=2)
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button clicks"""
+        button_id = event.button.id
+
+        if button_id == "btn-record":
+            self.action_record()
+        elif button_id == "btn-transmit":
+            self.action_transmit()
+        elif button_id == "btn-jammer":
+            self.action_jammer()
+        elif button_id == "btn-scanner":
+            self.action_scanner()
+        elif button_id == "btn-vault":
+            self.action_vault()
+        elif button_id == "btn-attacks":
+            self.action_attacks()
+        elif button_id == "btn-config":
+            self.action_config()
+        elif button_id == "btn-logs":
+            self.action_logs()
 
     def on_shutdown_request(self):
         """Called when app is shutting down"""
