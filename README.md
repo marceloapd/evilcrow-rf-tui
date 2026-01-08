@@ -28,13 +28,20 @@ A modern TUI (Text User Interface) to control the Evil Crow RF V2 via USB serial
 - [ ] Jammer (frequency blocking)
 - [ ] Scanner & Spectrum Analyzer
 
-### 📋 Planned (Phases 3-4)
-- [ ] Advanced attacks (Rolljam, Rollback, Bruteforce)
+### 📋 Planned (Phase 3 - Python TUI)
 - [ ] Python TUI with Textual
 - [ ] File formats (RAW, BIN, SUB, URH)
 - [ ] Storage manager (~/.evilcrow/)
+- [ ] Serial client with async events
 - [ ] 12 interactive screens
 - [ ] Visual spectrum analyzer
+
+### 📋 Planned (Phase 4 - Basic Attacks)
+- [ ] Bruteforce attack (DIP switches, fixed codes)
+
+### 📋 Planned (Phase 5 - Advanced Attacks)
+- [ ] Rolljam attack (rolling code capture)
+- [ ] Rollback attack (replay old codes)
 
 ## 🎯 Planned Features
 
